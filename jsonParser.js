@@ -166,7 +166,7 @@ var generators = {
             }
         }
     },
-    list: function(itemConsumer, delimiterConsumer) {
+    rawList: function(itemConsumer, delimiterConsumer) {
         // TODO: make this return an array instead of the generated structure?
         return generators.optional(
             generators.sequence(
@@ -178,6 +178,24 @@ var generators = {
                     )
                 )
             )
+        )
+    },
+    list: function(itemConsumer, delimiterConsumer) {
+        return generators.transform(
+            generators.rawList(itemConsumer, delimiterConsumer),
+            function(value) {
+                if (!value.success) {
+                    return []
+                }
+
+                var result = [value.value[0]]
+
+                for (var i = 0; i < value.value[1].length; i++) {
+                    result.push(value.value[1][i][1])
+                }
+
+                return result
+            }
         )
     },
     wrapOptionalWhitespace: function(consumer) {
@@ -260,18 +278,25 @@ json.value = generators.or(
     defer(json, "array"),
     defer(json, "object"),
     defer(json, "string"),
-    defer(json, "number")
+    defer(json, "number"),
+    defer(json, "bool"),
+    defer(json, "null")
 )
 
-json.string = generators.sequence(
-    generators.char("\""),
-    generators.many(
-        generators.constrain(
-            consumers.char,
-            function(c) { return c !== "\"" }
-        )
+json.string = generators.transform(
+    generators.sequence(
+        generators.char("\""),
+        generators.many(
+            generators.constrain(
+                consumers.char,
+                function(c) { return c !== "\"" }
+            )
+        ),
+        generators.char("\"")
     ),
-    generators.char("\"")
+    function(value) {
+        return value[1].join("")
+    }
 )
 
 json.number = generators.transform(
@@ -341,36 +366,67 @@ json.number = generators.transform(
     }
 )
 
-json.array = generators.sequence(
-    generators.char("["),
-    consumers.optionalWhitespace,
-    generators.list(
-        json.value,
-        generators.wrapOptionalWhitespace(
-            generators.char(",")
-        )
+json.bool = generators.transform(
+    generators.or(
+        generators.string("true"),
+        generators.string("false")
     ),
-    consumers.optionalWhitespace,
-    generators.char("]")
+    function(value) {
+        return value === "true"
+    }
 )
 
-json.object = generators.sequence(
-    generators.char("{"),
-    consumers.optionalWhitespace,
-    generators.list(
-        generators.sequence(
-            json.string,
+json.null = generators.transform(
+    generators.string("null"),
+    function() { return null }
+)
+
+json.array = generators.transform(
+    generators.sequence(
+        generators.char("["),
+        consumers.optionalWhitespace,
+        generators.list(
+            json.value,
             generators.wrapOptionalWhitespace(
-                generators.char(":")
-            ),
-            json.value
+                generators.char(",")
+            )
         ),
-        generators.wrapOptionalWhitespace(
-            generators.char(",")
-        )
+        consumers.optionalWhitespace,
+        generators.char("]")
     ),
-    consumers.optionalWhitespace,
-    generators.char("}")
+    function(value) {
+        return value[2]
+    }
+)
+
+json.object = generators.transform(
+    generators.sequence(
+        generators.char("{"),
+        consumers.optionalWhitespace,
+        generators.list(
+            generators.labelledSequence(
+                ["key", json.string],
+                ["separator", generators.wrapOptionalWhitespace(
+                    generators.char(":")
+                )],
+                ["value", json.value]
+            ),
+            generators.wrapOptionalWhitespace(
+                generators.char(",")
+            )
+        ),
+        consumers.optionalWhitespace,
+        generators.char("}")
+    ),
+    function(value) {
+        var result = {}
+        
+        value[2].forEach(function(property) {
+            result[property.key] = property.value
+        })
+
+        return result
+    }
 )
 
 var parser = function(str) {
