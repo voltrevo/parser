@@ -72,7 +72,7 @@ var generators = {
                 if (!ret.success) {
                     break
                 }
-                result.push(ret)
+                result.push(ret.value)
             }
 
             return {
@@ -110,7 +110,7 @@ var generators = {
                         value: result
                     }
                 }
-                result.push(ret)
+                result.push(ret.value)
             }
 
             return {
@@ -118,6 +118,31 @@ var generators = {
                 value: result
             }
         }
+    },
+    labelledSequence: function(/* args... */) {
+        var args = arguments
+
+        return generators.transform(
+            generators.sequence.apply(
+                undefined,
+                Array.prototype.map.call(
+                    arguments,
+                    function(labelledConsumer) {
+                        return labelledConsumer[1]
+                    }
+                )
+            ),
+            function(value) {
+                
+                var newValue = {}
+
+                for (var i = 0; i !== value.length; i++) {
+                    newValue[args[i][0]] = value[i]
+                }
+
+                return newValue
+            }
+        )
     },
     string: function(requiredString) {
         return generators.sequence.apply(
@@ -187,10 +212,29 @@ consumers.char = function(stream) {
 consumers.alphaChar = generators.regexChar(/^[a-zA-Z]$/)
 consumers.lowerChar = generators.regexChar(/^[a-z]$/)
 consumers.upperChar = generators.regexChar(/^[A-Z]$/)
-consumers.digit = generators.regexChar(/^[0-9]$/)
+
+consumers.digit = generators.transform(
+    generators.regexChar(/^[0-9]$/),
+    function(value) {
+        return value.charCodeAt(0) - "0".charCodeAt(0)
+    }
+)
+
 consumers.whitespaceChar = generators.regexChar(/^[ \r\n\t]$/)
 consumers.whitespace = generators.oneOrMore(consumers.whitespaceChar)
 consumers.optionalWhitespace = generators.many(consumers.whitespaceChar)
+
+/*
+var nonNegativeInteger = generators.transform(
+    generators.oneOrMore(consumers.digit),
+    function(value) {
+        var result = 0
+        value.forEach(function(digit) {
+
+        })
+    }
+)
+*/
 
 var json = {}
 
@@ -213,41 +257,52 @@ json.string = generators.sequence(
 )
 
 json.number = generators.constrain(
-    generators.sequence(
-        // n[0]: minus sign
-        generators.optional(
-            generators.char("-")
-        ),
-        // n[1]: leading digits
-        generators.many(
-            consumers.digit
-        ),
-        // n[2]: decimal point and digits
-        generators.optional(
-            generators.sequence(
-                generators.char("."),
-                generators.many(
-                    consumers.digit
+    generators.labelledSequence(
+        [
+            "minusSign",
+            generators.optional(
+                generators.char("-")
+            )
+        ],
+        [
+            "leadingDigits",
+            generators.many(
+                consumers.digit
+            )
+        ],
+        [
+            "decimalPointAndDigits",
+            generators.optional(
+                generators.labelledSequence(
+                    ["decimalPoint", generators.char(".")],
+                    ["decimalDigits", generators.many(
+                        consumers.digit
+                    )]
                 )
             )
-        ),
-        // n[3]: exponent
-        generators.optional(
-            generators.sequence(
-                generators.char("e"),
-                generators.optional(
-                    generators.char("-")
-                ),
-                generators.oneOrMore(
-                    consumers.digit
+        ],
+        [
+            "exponent",
+            generators.optional(
+                generators.sequence(
+                    generators.char("e"),
+                    generators.optional(
+                        generators.char("-")
+                    ),
+                    generators.oneOrMore(
+                        consumers.digit
+                    )
                 )
             )
-        )
+        ]
     ),
     function(n) {
         return (
-            n[1].value.length > 0 ||
-            (n[2].value.success && n[2].value.value[1].value.length > 0)
+            n.leadingDigits.length > 0 ||
+            (
+                n.decimalPointAndDigits.value.success &&
+                n.decimalPointAndDigits.value.value.decimalDigits.length > 0
+            )
         )
     }
 )
