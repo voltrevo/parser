@@ -224,17 +224,35 @@ consumers.whitespaceChar = generators.regexChar(/^[ \r\n\t]$/)
 consumers.whitespace = generators.oneOrMore(consumers.whitespaceChar)
 consumers.optionalWhitespace = generators.many(consumers.whitespaceChar)
 
-/*
 var nonNegativeInteger = generators.transform(
     generators.oneOrMore(consumers.digit),
     function(value) {
         var result = 0
-        value.forEach(function(digit) {
 
+        value.forEach(function(digit) {
+            result *= 10
+            result += digit
         })
+
+        return result
     }
 )
-*/
+
+var integer = generators.transform(
+    generators.labelledSequence(
+        ["minusSign", generators.optional(
+            generators.char("-")
+        )],
+        ["nonNegativeInteger", nonNegativeInteger]
+    ),
+    function(value) {
+        if (value.minusSign.success) {
+            return -value.nonNegativeInteger
+        }
+
+        return value.nonNegativeInteger
+    }
+)
 
 var json = {}
 
@@ -256,54 +274,70 @@ json.string = generators.sequence(
     generators.char("\"")
 )
 
-json.number = generators.constrain(
-    generators.labelledSequence(
-        [
-            "minusSign",
-            generators.optional(
-                generators.char("-")
-            )
-        ],
-        [
-            "leadingDigits",
-            generators.many(
-                consumers.digit
-            )
-        ],
-        [
-            "decimalPointAndDigits",
-            generators.optional(
-                generators.labelledSequence(
-                    ["decimalPoint", generators.char(".")],
-                    ["decimalDigits", generators.many(
-                        consumers.digit
-                    )]
-                )
-            )
-        ],
-        [
-            "exponent",
-            generators.optional(
-                generators.sequence(
-                    generators.char("e"),
-                    generators.optional(
-                        generators.char("-")
-                    ),
-                    generators.oneOrMore(
-                        consumers.digit
+json.number = generators.transform(
+    generators.constrain(
+        generators.labelledSequence(
+            [
+                "minusSign",
+                generators.optional(generators.char("-"))
+            ],
+            [
+                "leadingDigits",
+                generators.optional(nonNegativeInteger)
+            ],
+            [
+                "decimalPointAndDigits",
+                generators.optional(
+                    generators.labelledSequence(
+                        ["decimalPoint", generators.char(".")],
+                        ["decimalDigits", generators.many(consumers.digit)]
                     )
                 )
+            ],
+            [
+                "exponent",
+                generators.optional(
+                    generators.sequence(
+                        generators.char("e"),
+                        integer
+                    )
+                )
+            ]
+        ),
+        function(n) {
+            return (
+                n.leadingDigits.success ||
+                (
+                    n.decimalPointAndDigits.success &&
+                    n.decimalPointAndDigits.value.decimalDigits.success
+                )
             )
-        ]
+        }
     ),
-    function(n) {
-        return (
-            n.leadingDigits.length > 0 ||
-            (
-                n.decimalPointAndDigits.value.success &&
-                n.decimalPointAndDigits.value.value.decimalDigits.length > 0
-            )
-        )
+    function(value) {
+        var result = 0
+
+        if (value.leadingDigits.success) {
+            result += value.leadingDigits.value
+        }
+
+        if (value.decimalPointAndDigits.success) {
+            var multiplier = 1
+            value.decimalPointAndDigits.value.decimalDigits.forEach(function(digit) {
+                multiplier *= 0.1
+                result += digit * multiplier
+            })
+        }
+
+        if (value.exponent.success) {
+            result *= Math.pow(10, value.exponent.value[1])
+        }
+
+        if (value.minusSign.success) {
+            result *= -1
+        }
+
+        return result
     }
 )
 
