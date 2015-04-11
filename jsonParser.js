@@ -267,7 +267,7 @@ json.string = generators.sequence(
     generators.char("\""),
     generators.many(
         generators.constrain(
-            generators.char,
+            consumers.char,
             function(c) { return c !== "\"" }
         )
     ),
