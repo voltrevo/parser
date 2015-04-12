@@ -2,12 +2,10 @@
 
 var parser = require("./parser")
 
-var generators = parser.generators
-var consumers = parser.consumers
 var defer = parser.defer
 
-var nonNegativeInteger = generators.transform(
-    generators.oneOrMore(consumers.digit),
+var nonNegativeInteger = parser.transform(
+    parser.oneOrMore(parser.digit),
     function(value) {
         var result = 0
 
@@ -20,10 +18,10 @@ var nonNegativeInteger = generators.transform(
     }
 )
 
-var integer = generators.transform(
-    generators.labelledSequence(
-        ["minusSign", generators.optional(
-            generators.char("-")
+var integer = parser.transform(
+    parser.labelledSequence(
+        ["minusSign", parser.optional(
+            parser.char("-")
         )],
         ["nonNegativeInteger", nonNegativeInteger]
     ),
@@ -38,7 +36,7 @@ var integer = generators.transform(
 
 var json = {}
 
-json.value = generators.or(
+json.value = parser.or(
     defer(json, "array"),
     defer(json, "object"),
     defer(json, "string"),
@@ -47,47 +45,47 @@ json.value = generators.or(
     defer(json, "null")
 )
 
-json.string = generators.transform(
-    generators.sequence(
-        generators.char("\""),
-        generators.many(
-            generators.constrain(
-                consumers.char,
+json.string = parser.transform(
+    parser.sequence(
+        parser.char("\""),
+        parser.many(
+            parser.constrain(
+                parser.anyChar,
                 function(c) { return c !== "\"" }
             )
         ),
-        generators.char("\"")
+        parser.char("\"")
     ),
     function(value) {
         return value[1].join("")
     }
 )
 
-json.number = generators.transform(
-    generators.constrain(
-        generators.labelledSequence(
+json.number = parser.transform(
+    parser.constrain(
+        parser.labelledSequence(
             [
                 "minusSign",
-                generators.optional(generators.char("-"))
+                parser.optional(parser.char("-"))
             ],
             [
                 "leadingDigits",
-                generators.optional(nonNegativeInteger)
+                parser.optional(nonNegativeInteger)
             ],
             [
                 "decimalPointAndDigits",
-                generators.optional(
-                    generators.labelledSequence(
-                        ["decimalPoint", generators.char(".")],
-                        ["decimalDigits", generators.many(consumers.digit)]
+                parser.optional(
+                    parser.labelledSequence(
+                        ["decimalPoint", parser.char(".")],
+                        ["decimalDigits", parser.many(parser.digit)]
                     )
                 )
             ],
             [
                 "exponent",
-                generators.optional(
-                    generators.sequence(
-                        generators.char("e"),
+                parser.optional(
+                    parser.sequence(
+                        parser.char("e"),
                         integer
                     )
                 )
@@ -130,57 +128,57 @@ json.number = generators.transform(
     }
 )
 
-json.bool = generators.transform(
-    generators.or(
-        generators.string("true"),
-        generators.string("false")
+json.bool = parser.transform(
+    parser.or(
+        parser.string("true"),
+        parser.string("false")
     ),
     function(value) {
         return value === "true"
     }
 )
 
-json.null = generators.transform(
-    generators.string("null"),
+json.null = parser.transform(
+    parser.string("null"),
     function() { return null }
 )
 
-json.array = generators.transform(
-    generators.sequence(
-        generators.char("["),
-        consumers.optionalWhitespace,
-        generators.list(
+json.array = parser.transform(
+    parser.sequence(
+        parser.char("["),
+        parser.optionalWhitespace,
+        parser.list(
             json.value,
-            generators.wrapOptionalWhitespace(
-                generators.char(",")
+            parser.wrapOptionalWhitespace(
+                parser.char(",")
             )
         ),
-        consumers.optionalWhitespace,
-        generators.char("]")
+        parser.optionalWhitespace,
+        parser.char("]")
     ),
     function(value) {
         return value[2]
     }
 )
 
-json.object = generators.transform(
-    generators.sequence(
-        generators.char("{"),
-        consumers.optionalWhitespace,
-        generators.list(
-            generators.labelledSequence(
+json.object = parser.transform(
+    parser.sequence(
+        parser.char("{"),
+        parser.optionalWhitespace,
+        parser.list(
+            parser.labelledSequence(
                 ["key", json.string],
-                ["separator", generators.wrapOptionalWhitespace(
-                    generators.char(":")
+                ["separator", parser.wrapOptionalWhitespace(
+                    parser.char(":")
                 )],
                 ["value", json.value]
             ),
-            generators.wrapOptionalWhitespace(
-                generators.char(",")
+            parser.wrapOptionalWhitespace(
+                parser.char(",")
             )
         ),
-        consumers.optionalWhitespace,
-        generators.char("}")
+        parser.optionalWhitespace,
+        parser.char("}")
     ),
     function(value) {
         var result = {}
