@@ -118,8 +118,19 @@ cpp.functionForwardDeclaration = parser.transform(
     }
 )
 
+cpp.block = parser.block(
+    parser.char("{"),
+    parser.char("}")
+)
+
+cpp.function = parser.sequence(
+    cpp.functionHeading,
+    parser.optionalWhitespace,
+    cpp.block
+)
+
 cpp.topLevelElement = parser.labelledOr(
-    //["function", cpp.function],
+    ["function", cpp.function],
     ["functionForwardDeclaration", cpp.functionForwardDeclaration],
     ["constantStatement", cpp.constantStatement]
 )

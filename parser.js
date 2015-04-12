@@ -1,5 +1,7 @@
 "use strict"
 
+var stream = require("./stream")
+
 var parser = exports
 
 parser.defer = function(obj, prop) {
@@ -255,6 +257,104 @@ parser.mustConsumeAll = function(consumer) {
         }
 
         return result
+    }
+}
+
+parser.layer = function(consumer, innerConsumer) {
+    return function(stream) {
+        var restore = stream.mark()
+
+        var result = consumer(stream)
+        if (!result.success) {
+            restore()
+            return {
+                success: false,
+                value: {
+                    label: "consumer",
+                    value: result.value
+                }
+            }
+        }
+
+        var innerResult = parser.mustConsumeAll(innerConsumer)(result.value)
+        if (!innerResult.success) {
+            restore()
+            return {
+                success: false,
+                value: {
+                    label: "innerConsumer",
+                    value: innerResult.value
+                }
+            }
+        }
+
+        return innerResult
+    }
+}
+
+parser.block = function(openConsumer, closeConsumer) {
+    return function(inputStream) {
+        var restore = inputStream.mark() // TODO: should failure automatically reset the stream somehow?
+
+        var depth = 0
+        
+        var firstOpenResult = openConsumer(inputStream)
+        if (!firstOpenResult.success) {
+            restore()
+            return {
+                success: false,
+                value: {
+                    label: "failed start",
+                    value: firstOpenResult.value
+                }
+            }
+        }
+
+        depth++
+
+        var innerStreamString = ""
+
+        var bodyConsumer = parser.labelledOr(
+            ["openConsumer", openConsumer],
+            ["closeConsumer", closeConsumer],
+            ["anyChar", parser.anyChar]
+        )
+
+        while (true) {
+            var result = bodyConsumer(inputStream)
+
+            if (!result.success) {
+                return {
+                    success: false,
+                    value: {
+                        label: "failed mid-block",
+                        value: result.value
+                    }
+                }
+            }
+            
+            if (result.value.label === "openConsumer") {
+                depth++
+                innerStreamString += result.value.value
+            }
+            else if (result.value.label === "closeConsumer") {
+                depth--
+
+                if (depth === 0) {
+                    break
+                }
+
+                innerStreamString += result.value.value
+            }
+            else {
+                innerStreamString += result.value.value
+            }
+        }
+
+        return {
+            success: true,
+            value: new stream(innerStreamString)
+        }
     }
 }
 

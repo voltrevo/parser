@@ -1,5 +1,6 @@
 "use strict"
 
+var parser = require("./parser")
 var stream = require("./stream")
 var jsonParser = require("./json")
 var tinyCppSubset = require("./tinyCppSubset")
@@ -9,7 +10,7 @@ window.json = function(str) {
 }
 
 window.cpp = function(str) {
-    return tinyCppSubset(new stream(str))
+    return parser.mustConsumeAll(tinyCppSubset)(new stream(str))
 }
 
 window.json.impl = jsonParser.impl
