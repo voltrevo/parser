@@ -268,12 +268,21 @@ cpp.variableDeclaration = parser.transform(
     }
 )
 
+cpp.returnStatement = parser.transform(
+    parser.sequence(
+        parser.string("return"),
+        parser.whitespace,
+        cpp.expressionStatement
+    ),
+    function(value) {
+        return value[2]
+    }
+)
+
 cpp.statement = parser.labelledOr(
     ["variableDeclaration", cpp.variableDeclaration],
-    ["expressionWithSemicolon", parser.layer(
-        parser.until(parser.char(";")),
-        cpp.expression
-    )]
+    ["return", cpp.returnStatement],
+    ["expression", cpp.expressionStatement]
 )
 
 cpp.function = parser.transform(
