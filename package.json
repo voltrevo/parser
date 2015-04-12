@@ -1,0 +1,22 @@
+{
+  "name": "parser",
+  "version": "0.0.1",
+  "description": "Parser library.",
+  "main": "parser.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "parser",
+    "javascript",
+    "json"
+  ],
+  "author": "Andrew Morris",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^2.2.0"
+  }
+}
