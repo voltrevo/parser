@@ -49,9 +49,26 @@ json.string = parser.transform(
     parser.sequence(
         parser.char("\""),
         parser.many(
-            parser.constrain(
-                parser.anyChar,
-                function(c) { return c !== "\"" }
+            parser.or(
+                parser.transform(
+                    parser.sequence(
+                        parser.char("\\"),
+                        parser.anyChar
+                    ),
+                    function(value) {
+                        var specialIndex = "\\ntr".indexOf(value[1]) // TODO: are there others?
+                        
+                        if (specialIndex !== -1) {
+                            return "\\\n\t\r"[specialIndex]
+                        }
+
+                        return value[1]
+                    }
+                ),
+                parser.constrain(
+                    parser.anyChar,
+                    function(c) { return c !== "\"" }
+                )
             )
         ),
         parser.char("\"")
@@ -70,7 +87,7 @@ json.number = parser.transform(
             ],
             [
                 "leadingDigits",
-                parser.optional(nonNegativeInteger)
+                parser.many(parser.digit)
             ],
             [
                 "decimalPointAndDigits",
@@ -93,38 +110,34 @@ json.number = parser.transform(
         ),
         function(n) {
             return (
-                n.leadingDigits.success ||
+                n.leadingDigits.length > 0 ||
                 (
                     n.decimalPointAndDigits.success &&
-                    n.decimalPointAndDigits.value.decimalDigits.success
+                    n.decimalPointAndDigits.value.decimalDigits.length > 0
                 )
             )
         }
     ),
     function(value) {
-        var result = 0
+        var numStr = ""
 
-        if (value.leadingDigits.success) {
-            result += value.leadingDigits.value
+        if (value.minusSign.success) {
+            numStr += "-"
         }
 
+        numStr += value.leadingDigits.join("")
+
         if (value.decimalPointAndDigits.success) {
-            var multiplier = 1
-            value.decimalPointAndDigits.value.decimalDigits.forEach(function(digit) {
-                multiplier *= 0.1
-                result += digit * multiplier
-            })
+            numStr += "."
+            numStr += value.decimalPointAndDigits.value.decimalDigits.join("")
         }
 
         if (value.exponent.success) {
-            result *= Math.pow(10, value.exponent.value[1])
+            numStr += "e"
+            numStr += value.exponent.value[1]
         }
 
-        if (value.minusSign.success) {
-            result *= -1
-        }
-
-        return result
+        return parseFloat(numStr)
     }
 )
 
@@ -134,7 +147,7 @@ json.bool = parser.transform(
         parser.string("false")
     ),
     function(value) {
-        return value === "true"
+        return value[0] === "t"
     }
 )
 
@@ -190,5 +203,7 @@ json.object = parser.transform(
         return result
     }
 )
+
+json.value.impl = json
 
 module.exports = json.value

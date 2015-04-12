@@ -215,14 +215,7 @@ parser.anyChar = function(stream) {
 parser.alphaChar = parser.regexChar(/^[a-zA-Z]$/)
 parser.lowerChar = parser.regexChar(/^[a-z]$/)
 parser.upperChar = parser.regexChar(/^[A-Z]$/)
-
-parser.digit = parser.transform(
-    parser.regexChar(/^[0-9]$/),
-    function(value) {
-        return value.charCodeAt(0) - "0".charCodeAt(0)
-    }
-)
-
+parser.digit = parser.regexChar(/^[0-9]$/)
 parser.whitespaceChar = parser.regexChar(/^[ \r\n\t]$/)
 parser.whitespace = parser.oneOrMore(parser.whitespaceChar)
 parser.optionalWhitespace = parser.many(parser.whitespaceChar)
