@@ -241,6 +241,23 @@ parser.anyChar = function(stream) {
     }
 }
 
+parser.mustConsumeAll = function(consumer) {
+    return function(stream) {
+        var restore = stream.mark()
+        var result = consumer(stream)
+        
+        if (!stream.finished()) {
+            restore()
+            return {
+                success: false,
+                value: result
+            }
+        }
+
+        return result
+    }
+}
+
 parser.alphaChar = parser.regexChar(/^[a-zA-Z]$/)
 parser.lowerChar = parser.regexChar(/^[a-z]$/)
 parser.upperChar = parser.regexChar(/^[A-Z]$/)

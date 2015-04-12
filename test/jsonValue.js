@@ -5,9 +5,10 @@ var fs = require("fs")
 var expect = require("chai").expect
 var stream = require("../stream")
 var json = require("../json") // TODO: can this be "parser/json"?
+var parser = require("../parser")
 
 var parse = function(str) {
-    return json(new stream(str))
+    return parser.mustConsumeAll(json)(new stream(str))
 }
 
 describe("jsonValue", function() {

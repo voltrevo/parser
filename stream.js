@@ -6,11 +6,15 @@ function stream(str) {
 }
 
 stream.prototype.next = function() {
-    if (this._pos >= this._str.length) {
+    if (this.finished()) {
         return null
     }
 
     return this._str[this._pos++]
+}
+
+stream.prototype.finished = function() {
+    return this._pos >= this._str.length
 }
 
 stream.prototype.peek = function() {
