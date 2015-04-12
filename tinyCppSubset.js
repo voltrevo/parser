@@ -1,5 +1,6 @@
 "use strict"
 
+var stream = require("./stream")
 var parser = require("./parser")
 
 var cpp = {}
@@ -123,10 +124,176 @@ cpp.block = parser.block(
     parser.char("}")
 )
 
-cpp.function = parser.sequence(
-    cpp.functionHeading,
-    parser.optionalWhitespace,
-    cpp.block
+cpp.operator = parser.or(
+    parser.char("+"),
+    parser.char("-"),
+    parser.char("*"),
+    parser.char("/"),
+    parser.char("=")
+)
+
+cpp.parenthesis = parser.or(
+    parser.char("("),
+    parser.char(")")
+)
+
+cpp.operatorSets = [
+    ["="],
+    ["+", "-"],
+    ["*", "/"]
+]
+
+cpp.tokenize = parser.transform(
+    parser.many(
+        parser.wrapOptionalWhitespace(
+            parser.labelledOr(
+                ["value", cpp.integer],
+                ["operator", cpp.operator],
+                ["parenthesis", cpp.parenthesis],
+                ["value", cpp.identifier]
+            )
+        )
+    ),
+    function(value) {
+        return new stream(value)
+    }
+)
+
+cpp.expressionParenthesisExtractor = parser.transform(
+    parser.many(
+        parser.or(
+            parser.layer(
+                parser.block(
+                    parser.if(function(token) {
+                        return token.value === "("
+                    }),
+                    parser.if(function(token) {
+                        return token.value === ")"
+                    })
+                ),
+                parser.defer(cpp, "expression")
+            ),
+            parser.any
+        )
+    ),
+    function(value) {
+        return new stream(value)
+    }
+)
+
+cpp.expressionOperatorExtractor = function(index) {
+    var operatorSet = cpp.operatorSets[index]
+
+    if (!operatorSet) {
+        return parser.if(function(token) {
+            return token.label === "value" || token.label === "expressionTree"
+        })
+    }
+
+    var currExtractor = parser.transform(
+        parser.labelledSequence(
+            ["lhs", parser.layer(
+                parser.transform(
+                    parser.oneOrMore(
+                        parser.if(function(token) {
+                            return operatorSet.indexOf(token.value) === -1
+                        })
+                    ),
+                    function(value) {
+                        return new stream(value)
+                    }
+                ),
+                cpp.expressionOperatorExtractor(index + 1)
+            )],
+            ["operatorAndRhs", parser.optional(
+                parser.labelledSequence(
+                    ["operator", parser.if(function(token) {
+                        return operatorSet.indexOf(token.value) !== -1
+                    })],
+                    ["rhs", function(stream) {
+                        return currExtractor(stream)
+                    }]
+                )
+            )]
+        ),
+        function(value) {
+            if (!value.operatorAndRhs.success) {
+                return value.lhs
+            }
+
+            return {
+                label: "expressionTree",
+                value: {
+                    lhs: value.lhs,
+                    operator: value.operatorAndRhs.value.operator.value,
+                    rhs: value.operatorAndRhs.value.rhs
+                }
+            }
+        }
+    )
+
+    return currExtractor
+}
+
+cpp.expression = parser.layer(
+    cpp.expressionParenthesisExtractor,
+    cpp.expressionOperatorExtractor(0)
+)
+
+cpp.expressionStatement = parser.layer(
+    parser.until(parser.char(";")),
+    parser.layer(
+        cpp.tokenize,
+        cpp.expression
+    )
+)
+
+cpp.variableDeclaration = parser.transform(
+    parser.labelledSequence(
+        ["type", cpp.typename],
+        ["w1", parser.whitespace],
+        ["name", cpp.identifier],
+        ["w2", parser.whitespace],
+        ["equals", parser.char("=")],
+        ["w3", parser.optionalWhitespace],
+        ["expression", cpp.expressionStatement]
+    ),
+    function(value) {
+        delete value.w1
+        delete value.w2
+        delete value.equals
+        delete value.w3
+
+        return value
+    }
+)
+
+cpp.statement = parser.labelledOr(
+    ["variableDeclaration", cpp.variableDeclaration],
+    ["expressionWithSemicolon", parser.layer(
+        parser.until(parser.char(";")),
+        cpp.expression
+    )]
+)
+
+cpp.function = parser.transform(
+    parser.labelledSequence(
+        ["heading", cpp.functionHeading],
+        ["w1", parser.optionalWhitespace],
+        ["body", parser.layer(
+            cpp.block,
+            parser.many(
+                parser.wrapOptionalWhitespace(
+                    cpp.statement
+                )
+            )
+        )]
+    ),
+    function(value) {
+        delete value.w1
+
+        return value
+    }
 )
 
 cpp.topLevelElement = parser.labelledOr(

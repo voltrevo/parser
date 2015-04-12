@@ -234,12 +234,27 @@ parser.transform = function(consumer, f) {
     }
 }
 
+// DEPRECATED
 parser.anyChar = function(stream) {
     var ret = stream.next()
     
     return {
         success: ret !== null,
         value: ret
+    }
+}
+
+parser.any = function(stream) {
+    if (stream.finished()) {
+        return {
+            success: false,
+            value: null
+        }
+    }
+
+    return {
+        success: true,
+        value: stream.next()
     }
 }
 
@@ -312,7 +327,7 @@ parser.block = function(openConsumer, closeConsumer) {
 
         depth++
 
-        var innerStreamString = ""
+        var innerStreamArray = []
 
         var bodyConsumer = parser.labelledOr(
             ["openConsumer", openConsumer],
@@ -335,7 +350,7 @@ parser.block = function(openConsumer, closeConsumer) {
             
             if (result.value.label === "openConsumer") {
                 depth++
-                innerStreamString += result.value.value
+                innerStreamArray.push(result.value.value)
             }
             else if (result.value.label === "closeConsumer") {
                 depth--
@@ -344,18 +359,60 @@ parser.block = function(openConsumer, closeConsumer) {
                     break
                 }
 
-                innerStreamString += result.value.value
+                innerStreamArray.push(result.value.value)
             }
             else {
-                innerStreamString += result.value.value
+                innerStreamArray.push(result.value.value)
             }
         }
 
         return {
             success: true,
-            value: new stream(innerStreamString)
+            value: new stream(innerStreamArray)
         }
     }
+}
+
+parser.until = function(endConsumer) {
+    return function(inputStream) {
+        var restore = inputStream.mark()
+
+        var consumer = parser.labelledOr(
+            ["endConsumer", endConsumer],
+            ["anyChar", parser.anyChar]
+        )
+
+        var innerStreamString = ""
+
+        while (true) {
+            var result = consumer(inputStream)
+
+            if (!result.success) {
+                restore()
+                return {
+                    success: false,
+                    value: result.value
+                }
+            }
+
+            if (result.value.label === "endConsumer") {
+                return {
+                    success: true,
+                    value: new stream(innerStreamString)
+                }
+            }
+
+            innerStreamString += result.value.value
+        }
+    }
+}
+
+// TODO: consider renaming... parser.require, parser.satisfy? (this is not because of the conflict with the if keyword)
+parser.if = function(test) {
+    return parser.constrain(
+        parser.any,
+        test
+    )
 }
 
 parser.alphaChar = parser.regexChar(/^[a-zA-Z]$/)
