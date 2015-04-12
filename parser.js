@@ -134,8 +134,9 @@ parser.string = function(requiredString) {
         }))
 }
 
-parser.or = function(/* args */) {
+parser.or = function(/* args... */) {
     var args = arguments
+    
     return function(stream) {
         for (var i = 0; i !== args.length; i++) {
             var ret = args[i](stream)
@@ -148,6 +149,25 @@ parser.or = function(/* args */) {
             success: false
         }
     }
+}
+
+parser.labelledOr = function(/* args... */) {
+    var args = arguments
+
+    return parser.or.apply(
+        undefined,
+        Array.prototype.map.call(args, function(pair) {
+            return parser.transform(
+                pair[1],
+                function(value) {
+                    return {
+                        label: pair[0],
+                        value: value
+                    }
+                }
+            )
+        })
+    )
 }
 
 parser.rawList = function(itemConsumer, delimiterConsumer) {
@@ -183,11 +203,20 @@ parser.list = function(itemConsumer, delimiterConsumer) {
     )
 }
 
-parser.wrapOptionalWhitespace = function(consumer) {
+parser.rawWrapOptionalWhitespace = function(consumer) {
     return parser.sequence(
-        parser.defer(parser, "optionalWhitespace"),
+        parser.defer(parser, "optionalWhitespace"), // TODO: why is this deferred?
         consumer,
         parser.defer(parser, "optionalWhitespace")
+    )
+}
+
+parser.wrapOptionalWhitespace = function(consumer) {
+    return parser.transform(
+        parser.rawWrapOptionalWhitespace(consumer),
+        function(value) {
+            return value[1]
+        }
     )
 }
 
