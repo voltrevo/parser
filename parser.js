@@ -45,7 +45,7 @@ parser.char = function(requiredChar) {
 parser.many = function(consumer) {
     return function(stream) {
         var result = []
-        
+
         while (true) {
             var ret = consumer(stream)
             if (!ret.success) {
@@ -116,7 +116,7 @@ parser.labelledSequence = function(/* args... */) {
             )
         ),
         function(value) {
-            
+
             var newValue = {}
 
             for (var i = 0; i !== value.length; i++) {
@@ -138,7 +138,7 @@ parser.string = function(requiredString) {
 
 parser.or = function(/* args... */) {
     var args = arguments
-    
+
     return function(stream) {
         for (var i = 0; i !== args.length; i++) {
             var ret = args[i](stream)
@@ -237,7 +237,7 @@ parser.transform = function(consumer, f) {
 // DEPRECATED
 parser.anyChar = function(stream) {
     var ret = stream.next()
-    
+
     return {
         success: ret !== null,
         value: ret
@@ -262,7 +262,7 @@ parser.mustConsumeAll = function(consumer) {
     return function(stream) {
         var restore = stream.mark()
         var result = consumer(stream)
-        
+
         if (!stream.finished()) {
             restore()
             return {
@@ -312,7 +312,7 @@ parser.block = function(openConsumer, closeConsumer) {
         var restore = inputStream.mark() // TODO: should failure automatically reset the stream somehow?
 
         var depth = 0
-        
+
         var firstOpenResult = openConsumer(inputStream)
         if (!firstOpenResult.success) {
             restore()
@@ -347,7 +347,7 @@ parser.block = function(openConsumer, closeConsumer) {
                     }
                 }
             }
-            
+
             if (result.value.label === "openConsumer") {
                 depth++
                 innerStreamArray.push(result.value.value)

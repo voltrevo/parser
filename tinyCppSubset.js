@@ -49,7 +49,7 @@ parser.constantValue = parser.or(
 cpp.constantStatement = parser.transform(
     parser.labelledSequence(
         ["type", cpp.typename],
-        ["w1", parser.optionalWhitespace],
+        ["w1", parser.whitespace],
         ["name", cpp.identifier],
         ["w2", parser.optionalWhitespace],
         ["equals", parser.char("=")],
@@ -290,23 +290,57 @@ cpp.codeBlock = parser.layer(
     )
 )
 
-/*
-cpp.if = parser.labelledSequence(
-    ["ifKeyword", parser.string("if")],
-    ["w1", parser.optionalWhitespace],
+cpp.if = parser.transform(
+    parser.labelledSequence(
+        ["ifKeyword", parser.string("if")],
+        ["w1", parser.optionalWhitespace],
+        ["condition", parser.layer(
+            parser.block(
+                parser.char("("),
+                parser.char(")")
+            ),
+            cpp.expression
+        )],
+        ["w2", parser.optionalWhitespace],
+        ["body", cpp.codeBlock],
+        ["continuation", parser.optional(
+            parser.transform(
+                parser.labelledSequence(
+                    ["w1", parser.optionalWhitespace],
+                    ["elseKeyword", parser.string("else")],
+                    ["w2", parser.optionalWhitespace],
+                    ["elseBody", parser.labelledOr(
+                        ["codeBlock", cpp.codeBlock],
+                        ["if", parser.defer(cpp, "if")]
+                    )]
+                ),
+                function(value) {
+                    delete value.w1
+                    delete value.elseKeyword
+                    delete value.w2
 
+                    return value
+                }
+            )
+        )]
+    ),
+    function(value) {
+        delete value.ifKeyword
+        delete value.w1
+        delete value.w2
+
+        return value
+    }
 )
-*/
 
 cpp.statement = parser.labelledOr(
     ["variableDeclaration", cpp.variableDeclaration],
     ["return", cpp.returnStatement],
     ["expression", cpp.expressionStatement],
-    ["codeBlock", cpp.codeBlock]
-    /*["controlStructure", parser.labelledOr(
-        ["codeBlock", cpp.codeBlock],
-        ["if", cpp.if]
-    )]*/
+    ["controlStructure", parser.labelledOr(
+        ["codeBlock", cpp.codeBlock]
+        //["if", cpp.if]
+    )]
 )
 
 cpp.function = parser.transform(
@@ -344,5 +378,7 @@ cpp.program = parser.transform(
         })
     }
 )
+
+cpp.program.impl = cpp
 
 module.exports = cpp.program
