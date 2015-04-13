@@ -150,7 +150,7 @@ cpp.tokenize = parser.transform(
                 ["value", cpp.integer],
                 ["operator", cpp.operator],
                 ["parenthesis", cpp.parenthesis],
-                ["value", cpp.identifier]
+                ["variable", cpp.identifier]
             )
         )
     ),
@@ -186,7 +186,7 @@ cpp.expressionOperatorExtractor = function(index) {
 
     if (!operatorSet) {
         return parser.if(function(token) {
-            return token.label === "value" || token.label === "expressionTree"
+            return ["value", "variable", "expressionTree"].indexOf(token.label) !== -1
         })
     }
 

@@ -227,6 +227,10 @@ describe("cpp", function() {
 				label: "value",
 				value: 0
 			}],
+			["x", {
+				label: "variable",
+				value: "x"
+			}],
 			["1 + 1", {
 				label: "expressionTree",
 				value: {
@@ -297,7 +301,7 @@ describe("cpp", function() {
 				label: "expressionTree",
 				value: {
 					lhs: {
-						label: "value",
+						label: "variable",
 						value: "x"
 					},
 					operator: "=",
@@ -419,7 +423,7 @@ describe("cpp", function() {
 						label: "expressionTree",
 						value: {
 							lhs: {
-								label: "value",
+								label: "variable",
 								value: "x"
 							},
 							operator: "=",
@@ -436,7 +440,7 @@ describe("cpp", function() {
 						label: "expressionTree",
 						value: {
 							lhs: {
-								label: "value",
+								label: "variable",
 								value: "y"
 							},
 							operator: "=",
@@ -611,12 +615,12 @@ describe("cpp", function() {
 							label: "expressionTree",
 							value: {
 								lhs: {
-									label: "value",
+									label: "variable",
 									value: "x"
 								},
 								operator: "+",
 								rhs: {
-									label: "value",
+									label: "variable",
 									value: "y"
 								}
 							}
