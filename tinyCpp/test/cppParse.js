@@ -214,7 +214,9 @@ describe("cpp", function() {
 			[""],
 			["+ -"],
 			["x + y * z"],
-			["x+y*z"]
+			["x+y*z"],
+			["x(1)"],
+			["x(1, 2)"]
 		],
 		invalid: [
 			" " // TODO: undecided whether this should actually fail
@@ -320,6 +322,64 @@ describe("cpp", function() {
 						}
 					}
 				}
+			}],
+			["(1 + 1)", {
+				label: "expressionTree",
+				value: {
+					lhs: {
+						label: "value",
+						value: 1
+					},
+					operator: "+",
+					rhs: {
+						label: "value",
+						value: 1
+					}
+				}
+			}],
+			["sum(1, 2)", {
+				label: "functionCall",
+				value: {
+					name: "sum",
+					arguments: [
+						{
+							label: "value",
+							value: 1
+						},
+						{
+							label: "value",
+							value: 2
+						}
+					]
+				}
+			}],
+			["sum(1, sum(2, 3))", {
+				label: "functionCall",
+				value: {
+					name: "sum",
+					arguments: [
+						{
+							label: "value",
+							value: 1
+						},
+						{
+							label: "functionCall",
+							value: {
+								name: "sum",
+								arguments: [
+									{
+										label: "value",
+										value: 2
+									},
+									{
+										label: "value",
+										value: 3
+									}
+								]
+							}
+						}
+					]
+				}
 			}]
 		],
 		invalid: [
@@ -407,6 +467,7 @@ describe("cpp", function() {
 	testTemplate("codeBlock", {
 		valid: [
 			["{}", []],
+			["{ }", []],
 			["{ 3; }", [
 				{
 					label: "expression",
@@ -593,6 +654,7 @@ describe("cpp", function() {
 	testTemplate("function", {
 		valid: [
 			["int foo() {}"],
+			["int foo() { }"],
 			["int sum(int x, int y) { return x + y; }", {
 				heading: {
 					returnType: "int",

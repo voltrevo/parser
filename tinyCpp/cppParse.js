@@ -149,6 +149,7 @@ cpp.tokenize = parser.transform(
             parser.labelledOr(
                 ["value", cpp.integer],
                 ["operator", cpp.operator],
+                ["comma", parser.char(",")],
                 ["parenthesis", cpp.parenthesis],
                 ["variable", cpp.identifier]
             )
@@ -159,20 +160,76 @@ cpp.tokenize = parser.transform(
     }
 )
 
+cpp.functionCall = parser.transform(
+    parser.sequence(
+        parser.if(function(token) {
+            return token.label === "variable"
+        }),
+        parser.layer(
+            parser.block(
+                parser.if(function(token) {
+                    return token.value === "("
+                }),
+                parser.if(function(token) {
+                    return token.value === ")"
+                })
+            ),
+            parser.list(
+                parser.layer(
+                    parser.transform(
+                        function(stream) {
+                            var depth = 0
+
+                            return parser.many(
+                                parser.if(function(token) {
+                                    if (token.label === "parenthesis") {
+                                        depth += (token.value === "(" ? 1 : -1)
+                                    }
+
+                                    return depth !== 0 || token.label !== "comma"
+                                })
+                            )(stream)
+                        },
+                        function(value) {
+                            return new stream(value)
+                        }
+                    ),
+                    parser.defer(cpp, "tokenExpression")
+                ),
+                parser.if(function(token) {
+                    return token.label === "comma"
+                })
+            )
+        )
+    ),
+    function(value) {
+        return {
+            label: "functionCall",
+            value: {
+                name: value[0].value,
+                arguments: value[1]
+            }
+        }
+    }
+)
+
+cpp.expressionInParenthesis = parser.layer(
+    parser.block(
+        parser.if(function(token) {
+            return token.value === "("
+        }),
+        parser.if(function(token) {
+            return token.value === ")"
+        })
+    ),
+    parser.defer(cpp, "tokenExpression")
+)
+
 cpp.expressionParenthesisExtractor = parser.transform(
     parser.many(
         parser.or(
-            parser.layer(
-                parser.block(
-                    parser.if(function(token) {
-                        return token.value === "("
-                    }),
-                    parser.if(function(token) {
-                        return token.value === ")"
-                    })
-                ),
-                parser.defer(cpp, "expression")
-            ),
+            cpp.functionCall,
+            cpp.expressionInParenthesis,
             parser.any
         )
     ),
@@ -186,7 +243,7 @@ cpp.expressionOperatorExtractor = function(index) {
 
     if (!operatorSet) {
         return parser.if(function(token) {
-            return ["value", "variable", "expressionTree"].indexOf(token.label) !== -1
+            return ["value", "variable", "expressionTree", "functionCall"].indexOf(token.label) !== -1
         })
     }
 
@@ -283,9 +340,11 @@ cpp.returnStatement = parser.transform(
 
 cpp.codeBlock = parser.layer(
     cpp.block,
-    parser.many(
-        parser.wrapOptionalWhitespace(
-            parser.defer(cpp, "statement")
+    parser.wrapOptionalWhitespace(
+        parser.many(
+            parser.wrapOptionalWhitespace(
+                parser.defer(cpp, "statement")
+            )
         )
     )
 )
