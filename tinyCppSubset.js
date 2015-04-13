@@ -235,17 +235,19 @@ cpp.expressionOperatorExtractor = function(index) {
     return currExtractor
 }
 
-cpp.expression = parser.layer(
+cpp.tokenExpression = parser.layer(
     cpp.expressionParenthesisExtractor,
     cpp.expressionOperatorExtractor(0)
 )
 
+cpp.expression = parser.layer(
+    cpp.tokenize,
+    cpp.tokenExpression
+)
+
 cpp.expressionStatement = parser.layer(
     parser.until(parser.char(";")),
-    parser.layer(
-        cpp.tokenize,
-        cpp.expression
-    )
+    cpp.expression
 )
 
 cpp.variableDeclaration = parser.transform(
@@ -288,11 +290,23 @@ cpp.codeBlock = parser.layer(
     )
 )
 
+/*
+cpp.if = parser.labelledSequence(
+    ["ifKeyword", parser.string("if")],
+    ["w1", parser.optionalWhitespace],
+
+)
+*/
+
 cpp.statement = parser.labelledOr(
     ["variableDeclaration", cpp.variableDeclaration],
     ["return", cpp.returnStatement],
     ["expression", cpp.expressionStatement],
     ["codeBlock", cpp.codeBlock]
+    /*["controlStructure", parser.labelledOr(
+        ["codeBlock", cpp.codeBlock],
+        ["if", cpp.if]
+    )]*/
 )
 
 cpp.function = parser.transform(
