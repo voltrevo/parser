@@ -558,4 +558,129 @@ describe("cpp", function() {
 			"if (1) {} else (1) {}"
 		]
 	})
+
+	testTemplate("while", {
+		valid: [
+			["while (1) {}", {
+				condition: {
+					label: "value",
+					value: 1
+				},
+				body: []
+			}]
+		]
+	})
+
+	testTemplate("statement", {
+		valid: [
+			["int x = 3;"],
+			["return 0;"],
+			["0;"],
+			["{}"],
+			["if (1) {}"],
+			["while (1) {}"]
+		],
+		invalid: [
+			"",
+			";" // TODO: make this valid
+		]
+	})
+
+	testTemplate("function", {
+		valid: [
+			["int foo() {}"],
+			["int sum(int x, int y) { return x + y; }", {
+				heading: {
+					returnType: "int",
+					name: "sum",
+					arguments: [
+						{
+							type: "int",
+							name: "x"
+						},
+						{
+							type: "int",
+							name: "y"
+						}
+					]
+				},
+				body: [
+					{
+						label: "return",
+						value: {
+							label: "expressionTree",
+							value: {
+								lhs: {
+									label: "value",
+									value: "x"
+								},
+								operator: "+",
+								rhs: {
+									label: "value",
+									value: "y"
+								}
+							}
+						}
+					}
+				]
+			}]
+		],
+		invalid: [
+			"",
+			"intfoo(){}",
+			"int foo() { int bar() {} }", // TODO: make this valid
+			"int foo(int) {}", // TODO: make this valid
+			"int(int){}",
+			"int foo() { { x } }"
+		]
+	})
+
+	testTemplate("topLevelElement", {
+		valid: [
+			["int foo() {}"],
+			["int foo();"],
+			["int x = 3;"]
+		],
+		invalid: [
+			"",
+			"int x = 1 + 1;", // TODO: make this valid
+			"int foo()"
+		]
+	})
+
+	testTemplate("program", {
+		valid: [
+			["", []],
+			["int x = 3; int foo(); int foo() {}", [
+				{
+					label: "constantStatement",
+					value: {
+						type: "int",
+						name: "x",
+						value: 3
+					}
+				},
+				{
+					label: "functionForwardDeclaration",
+					value: {
+						returnType: "int",
+						name: "foo",
+						arguments: []
+					}
+				},
+				{
+					label: "function",
+					value: {
+						heading: {
+							returnType: "int",
+							name: "foo",
+							arguments: []
+						},
+						body: []
+					}
+				}
+			]],
+			[" "]
+		]
+	})
 })

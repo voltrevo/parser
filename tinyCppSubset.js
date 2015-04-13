@@ -290,17 +290,19 @@ cpp.codeBlock = parser.layer(
     )
 )
 
+cpp.condition = parser.layer(
+    parser.block(
+        parser.char("("),
+        parser.char(")")
+    ),
+    cpp.expression
+)
+
 cpp.if = parser.transform(
     parser.labelledSequence(
         ["ifKeyword", parser.string("if")],
         ["w1", parser.optionalWhitespace],
-        ["condition", parser.layer(
-            parser.block(
-                parser.char("("),
-                parser.char(")")
-            ),
-            cpp.expression
-        )],
+        ["condition", cpp.condition],
         ["w2", parser.optionalWhitespace],
         ["body", cpp.codeBlock],
         ["continuation", parser.optional(
@@ -333,13 +335,31 @@ cpp.if = parser.transform(
     }
 )
 
+cpp.while = parser.transform(
+    parser.labelledSequence(
+        ["whileKeyword", parser.string("while")],
+        ["w1", parser.optionalWhitespace],
+        ["condition", cpp.condition],
+        ["w2", parser.optionalWhitespace],
+        ["body", cpp.codeBlock]
+    ),
+    function(value) {
+        delete value.whileKeyword
+        delete value.w1
+        delete value.w2
+
+        return value
+    }
+)
+
 cpp.statement = parser.labelledOr(
     ["variableDeclaration", cpp.variableDeclaration],
     ["return", cpp.returnStatement],
     ["expression", cpp.expressionStatement],
     ["controlStructure", parser.labelledOr(
-        ["codeBlock", cpp.codeBlock]
-        //["if", cpp.if]
+        ["codeBlock", cpp.codeBlock],
+        ["if", cpp.if],
+        ["while", cpp.while]
     )]
 )
 
