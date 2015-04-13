@@ -279,24 +279,27 @@ cpp.returnStatement = parser.transform(
     }
 )
 
+cpp.codeBlock = parser.layer(
+    cpp.block,
+    parser.many(
+        parser.wrapOptionalWhitespace(
+            parser.defer(cpp, "statement")
+        )
+    )
+)
+
 cpp.statement = parser.labelledOr(
     ["variableDeclaration", cpp.variableDeclaration],
     ["return", cpp.returnStatement],
-    ["expression", cpp.expressionStatement]
+    ["expression", cpp.expressionStatement],
+    ["codeBlock", cpp.codeBlock]
 )
 
 cpp.function = parser.transform(
     parser.labelledSequence(
         ["heading", cpp.functionHeading],
         ["w1", parser.optionalWhitespace],
-        ["body", parser.layer(
-            cpp.block,
-            parser.many(
-                parser.wrapOptionalWhitespace(
-                    cpp.statement
-                )
-            )
-        )]
+        ["body", cpp.codeBlock]
     ),
     function(value) {
         delete value.w1
