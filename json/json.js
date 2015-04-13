@@ -1,6 +1,6 @@
 "use strict"
 
-var parser = require("./parser")
+var parser = require("..")
 
 var defer = parser.defer
 
@@ -57,7 +57,7 @@ json.string = parser.transform(
                     ),
                     function(value) {
                         var specialIndex = "\\ntr".indexOf(value[1]) // TODO: are there others?
-                        
+
                         if (specialIndex !== -1) {
                             return "\\\n\t\r"[specialIndex]
                         }
@@ -195,7 +195,7 @@ json.object = parser.transform(
     ),
     function(value) {
         var result = {}
-        
+
         value[2].forEach(function(property) {
             result[property.key] = property.value
         })

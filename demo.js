@@ -2,8 +2,8 @@
 
 var parser = require("./parser")
 var stream = require("./stream")
-var jsonParser = require("./json")
-var tinyCppSubset = require("./tinyCppSubset")
+var jsonParser = require("./json/json")
+var tinyCppSubset = require("./tinyCpp/cppParse")
 
 window.json = function(str) {
     return jsonParser(new stream(str))

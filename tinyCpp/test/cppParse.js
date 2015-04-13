@@ -2,9 +2,9 @@
 
 var expect = require("chai").expect
 
-var parser = require("../parser")
-var stream = require("../stream")
-var cpp = require("../tinyCppSubset").impl
+var parser = require("../../parser")
+var stream = require("../../stream")
+var cpp = require("../cppParse").impl
 
 var testTemplate = function(consumerName, opts) {
 	var consumer = parser.mustConsumeAll(cpp[consumerName])

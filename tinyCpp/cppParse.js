@@ -1,7 +1,7 @@
 "use strict"
 
-var stream = require("./stream")
-var parser = require("./parser")
+var stream = require("../stream")
+var parser = require("../parser")
 
 var cpp = {}
 

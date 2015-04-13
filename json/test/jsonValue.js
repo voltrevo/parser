@@ -3,9 +3,9 @@
 var fs = require("fs")
 
 var expect = require("chai").expect
-var stream = require("../stream")
+var stream = require("../../stream")
 var json = require("../json") // TODO: can this be "parser/json"?
-var parser = require("../parser")
+var parser = require("../../parser")
 
 var parse = function(str) {
     return parser.mustConsumeAll(json)(new stream(str))
@@ -131,7 +131,7 @@ describe("jsonValue", function() {
     })
 
     it("parses big.json", function(done) {
-        fs.readFile("test/big.json", function(err, data) {
+        fs.readFile("json/test/big.json", function(err, data) {
             if (err) {
                 done(err)
                 return
