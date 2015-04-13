@@ -39,7 +39,7 @@ compiler.addTopLevelElementToProgram = function(compilation, topLevelElement) {
 	var handler = compiler.topLevelHandlers[topLevelElement.label + "Handler"]
 
 	if (!handler) {
-		console.error("No handler found for topLevelElement with label " + topLevelElement.label)
+		compilation.error("No handler found for topLevelElement with label " + topLevelElement.label)
 		return
 	}
 
@@ -52,14 +52,14 @@ compiler.topLevelHandlers.globalVariableDeclarationHandler = function(compilatio
 	var globalVars = compilation.state.program.global.variables
 
 	if (globalVars[gvd.name]) {
-		console.error("Attempt to re-declare " + gvd.name)
+		compilation.error("Attempt to re-declare " + gvd.name)
 		return
 	}
 
 	var type = builtinTypes[gvd.type]
 
 	if (!type) {
-		console.error("Type " + gvd.type + " not available")
+		compilation.error("Type " + gvd.type + " not available")
 		return
 	}
 
@@ -83,7 +83,7 @@ compiler.topLevelHandlers.functionForwardDeclarationHandler = function(compilati
 	var globalFuncDecls = compilation.state.program.global.functions.declarations
 
 	if (globalFuncDecls[overloadKey]) {
-		console.warn("Ignoring duplicate forward declaration of function " + overloadKey)
+		compilation.warn("Ignoring duplicate forward declaration of function " + overloadKey)
 		return
 	}
 
@@ -94,14 +94,14 @@ compiler.topLevelHandlers.functionForwardDeclarationHandler = function(compilati
 
 }*/
 
-compiler.compile = function compiler(programStructure) {
+compiler.compile = function(programStructure) {
 	var compilation = compiler.initCompilation()
 
 	programStructure.forEach(function(topLevelElement) {
 		compiler.addTopLevelElementToProgram(compilation, topLevelElement)
 	})
 
-	return compilation
+	return compilation.state
 }
 
 compiler.compile.impl = compiler
