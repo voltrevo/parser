@@ -46,7 +46,7 @@ parser.constantValue = parser.or(
     cpp.integer
 )
 
-cpp.constantStatement = parser.transform(
+cpp.globalVariableDeclaration = parser.transform(
     parser.labelledSequence(
         ["type", cpp.typename],
         ["w1", parser.whitespace],
@@ -438,7 +438,7 @@ cpp.function = parser.transform(
 cpp.topLevelElement = parser.labelledOr(
     ["function", cpp.function],
     ["functionForwardDeclaration", cpp.functionForwardDeclaration],
-    ["constantStatement", cpp.constantStatement]
+    ["globalVariableDeclaration", cpp.globalVariableDeclaration]
 )
 
 cpp.program = parser.transform(

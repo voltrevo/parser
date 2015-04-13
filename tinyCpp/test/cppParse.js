@@ -103,7 +103,7 @@ describe("cpp", function() {
 
 	// TODO: constantValue
 
-	testTemplate("constantStatement", {
+	testTemplate("globalVariableDeclaration", {
 		valid: [
 			["int x = 0;", {
 				type: "int",
@@ -719,7 +719,7 @@ describe("cpp", function() {
 			["", []],
 			["int x = 3; int foo(); int foo() {}", [
 				{
-					label: "constantStatement",
+					label: "globalVariableDeclaration",
 					value: {
 						type: "int",
 						name: "x",
