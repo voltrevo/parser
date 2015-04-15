@@ -181,5 +181,9 @@ Which will parse stuff.cpp, and currently outputs the following:
         }
     }
 ]
+```
 
+There are also lots of unit tests which give lots of example program snippets and expected outputs at tinyCpp/test/cppParse.js and can be run with:
+```
+mocha tinyCpp/test/cppParse.js
 ```
