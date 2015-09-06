@@ -121,6 +121,7 @@ cpp.functionForwardDeclaration = parser.transform(
 
 cpp.block = parser.block(
     parser.char("{"),
+    parser.any,
     parser.char("}")
 )
 
@@ -170,6 +171,7 @@ cpp.functionCall = parser.transform(
                 parser.if(function(token) {
                     return token.value === "("
                 }),
+                parser.any,
                 parser.if(function(token) {
                     return token.value === ")"
                 })
@@ -218,6 +220,7 @@ cpp.expressionInParenthesis = parser.layer(
         parser.if(function(token) {
             return token.value === "("
         }),
+        parser.any,
         parser.if(function(token) {
             return token.value === ")"
         })
@@ -352,6 +355,7 @@ cpp.codeBlock = parser.layer(
 cpp.condition = parser.layer(
     parser.block(
         parser.char("("),
+        parser.any,
         parser.char(")")
     ),
     cpp.expression

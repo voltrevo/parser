@@ -4,6 +4,8 @@ var stream = require("./stream")
 
 var parser = exports
 
+parser.stream = stream
+
 parser.defer = function(obj, prop) {
     return function() {
         return obj[prop].apply(undefined, arguments)
@@ -307,7 +309,7 @@ parser.layer = function(consumer, innerConsumer) {
     }
 }
 
-parser.block = function(openConsumer, closeConsumer) {
+parser.block = function(openConsumer, contentConsumer, closeConsumer) {
     return function(inputStream) {
         var restore = inputStream.mark() // TODO: should failure automatically reset the stream somehow?
 
@@ -332,7 +334,7 @@ parser.block = function(openConsumer, closeConsumer) {
         var bodyConsumer = parser.labelledOr(
             ["openConsumer", openConsumer],
             ["closeConsumer", closeConsumer],
-            ["anyChar", parser.anyChar]
+            ["contentConsumer", contentConsumer]
         )
 
         while (true) {
@@ -362,7 +364,7 @@ parser.block = function(openConsumer, closeConsumer) {
                 innerStreamArray.push(result.value.value)
             }
             else {
-                innerStreamArray.push(result.value.value)
+                innerStreamArray = innerStreamArray.concat(result.value.value)
             }
         }
 

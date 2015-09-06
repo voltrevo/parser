@@ -13,6 +13,10 @@ var testTemplate = function(consumerName, opts) {
 		if (opts.valid) {
 			describe("succeeds for valid inputs", function() {
 				opts.valid.map(function(inputOutput) {
+					if (inputOutput[0] === '(1 + 1)') {
+						debugger
+					}
+
 					return {
 						input: inputOutput[0],
 						expectedOutput: {
