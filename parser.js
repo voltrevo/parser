@@ -131,11 +131,17 @@ parser.labelledSequence = function(/* args... */) {
 }
 
 parser.string = function(requiredString) {
-    return parser.sequence.apply(
-        undefined,
-        requiredString.split("").map(function(c) {
-            return parser.char(c)
-        }))
+    return parser.transform(
+        parser.sequence.apply(
+            undefined,
+            requiredString.split("").map(function(c) {
+                return parser.char(c)
+            })
+        ),
+        function(arr) {
+            return arr.join('')
+        }
+    );
 }
 
 parser.or = function(/* args... */) {
