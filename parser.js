@@ -423,6 +423,18 @@ parser.if = function(test) {
     )
 }
 
+parser.type = function(typename, consumer) {
+    return parser.transform(
+        consumer,
+        function(res) {
+            return {
+                type: typename,
+                value: res
+            }
+        }
+    )
+}
+
 parser.alphaChar = parser.regexChar(/^[a-zA-Z]$/)
 parser.lowerChar = parser.regexChar(/^[a-z]$/)
 parser.upperChar = parser.regexChar(/^[A-Z]$/)
