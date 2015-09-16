@@ -44,8 +44,8 @@ module.exports = function(data) {
     pos = mark.pos;
   };
 
-  stream.describeMark = function(mark) {
-    unwrapMark(mark);
+  stream.describeMark = function(wrappedMark) {
+    unwrapMark(wrappedMark);
     return undefined;
   };
 
@@ -53,7 +53,7 @@ module.exports = function(data) {
     unwrapMark(wrappedStartMark);
     unwrapMark(wrappedEndMark);
     return undefined;
-  }
+  };
 
   return stream;
 };
