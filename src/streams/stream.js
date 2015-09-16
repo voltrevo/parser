@@ -14,6 +14,11 @@ module.exports = function(data) {
     return pos < data.length;
   };
 
+  stream.peek = function() {
+    assert(stream.hasNext());
+    return data[pos];
+  };
+
   stream.next = function() {
     assert(stream.hasNext());
     return data[pos++];

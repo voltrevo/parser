@@ -21,6 +21,8 @@ module.exports = function(name, data) {
     return stream.hasNext();
   };
 
+  lineStream.peek = stream.peek;
+
   lineStream.next = function() {
     var char = stream.next();
 
