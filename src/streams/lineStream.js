@@ -1,5 +1,7 @@
 'use strict';
 
+var assert = require('assert');
+
 var Privacy = require('../privacy.js');
 var Stream = require('./stream.js');
 
