@@ -1,5 +1,6 @@
 'use strict';
 
+var Privacy = require('./privacy.js');
 var Stream = require('./stream.js');
 
 module.exports = function(name, data) {
@@ -12,7 +13,7 @@ module.exports = function(name, data) {
     char: 0
   };
 
-  var privateTags = { in: {}, out: {} };
+  var privacy = Privacy();
 
   lineStream.hasNext = function() {
     return stream.hasNext();
@@ -32,47 +33,31 @@ module.exports = function(name, data) {
   };
 
   lineStream.mark = function() {
-    var markPos = {
-      line: pos.line,
-      char: pos.char
-    };
-
-    return {
-      _unwrap: function(tag) {
-        assert(tag === privateTags.in);
-
-        return {
-          pos: markPos,
-          streamMark: stream.mark(),
-          tag: privateTags.out
-        };
-      };
-    };
-  };
-
-  var unwrapMark = function(mark) {
-    var unwrapped = mark._unwrap(privateTag.in);
-    assert(unwrapped.tag === privateTag.out);
-
-    return unwrapped;
+    return privacy.wrap({
+      streamMark: stream.mark(),
+      pos: {
+        line: pos.line,
+        char: pos.char
+      }
+    });
   };
 
   lineStream.restore = function(wrappedMark) {
-    var mark = unwrapMark(wrappedMark);
+    var mark = privacy.unwrap(wrappedMark);
 
-    stream.restore(pos.streamMark);
+    stream.restore(mark.streamMark);
     pos.line = mark.pos.line;
     pos.char = mark.pos.char;
   };
 
   lineStream.describeMark = function(wrappedMark) {
-    var mark = unwrapMark(wrappedMark);
+    var mark = privacy.unwrap(wrappedMark);
     return [name, mark.pos.line, mark.pos.char].join(':');
   };
 
   lineStream.describeMarkRange = function(wrappedStartMark, wrappedEndMark) {
-    var startMark = unwrapMark(wrappedStartMark);
-    var endMark = unwrapMark(wrappedEndMark);
+    var startMark = privacy.unwrap(wrappedStartMark);
+    var endMark = privacy.unwrap(wrappedEndMark);
 
     var rng = function(x) {
       assert(x.length === 2);

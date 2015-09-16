@@ -2,11 +2,13 @@
 
 var assert = require('assert');
 
+var Privacy = require('./privacy.js');
+
 module.exports = function(data) {
   var stream = {};
 
   var pos = 0;
-  var privateTags = { in: {}, out: {} };
+  var privacy = Privacy();
 
   stream.hasNext = function() {
     return pos < data.length;
@@ -18,40 +20,21 @@ module.exports = function(data) {
   };
 
   stream.mark = function() {
-    var markPos = pos;
-
-    return {
-      _unwrap: function(tag) {
-        assert(tag === privateTags.in);
-
-        return {
-          pos: markPos,
-          tag: privateTags.out
-        };
-      };
-    };
+    return privacy.wrap(pos);
   };
 
-  var unwrapMark = function(mark) {
-    var unwrapped = mark._unwrap(privateTag.in);
-    assert(unwrapped.tag === privateTag.out);
-
-    return unwrapped;
+  stream.restore = function(mark) {
+    pos = privacy.unwrap(mark);
   };
 
-  stream.restore = function(wrappedMark) {
-    var mark = unwrapMark(wrappedMark);
-    pos = mark.pos;
-  };
-
-  stream.describeMark = function(wrappedMark) {
-    unwrapMark(wrappedMark);
+  stream.describeMark = function(mark) {
+    privacy.unwrap(mark);
     return undefined;
   };
 
-  stream.describeMarkRange = function(wrappedStartMark, wrappedEndMark) {
-    unwrapMark(wrappedStartMark);
-    unwrapMark(wrappedEndMark);
+  stream.describeMarkRange = function(startMark, endMark) {
+    privacy.unwrap(startMark);
+    privacy.unwrap(endMark);
     return undefined;
   };
 
