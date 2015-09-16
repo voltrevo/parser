@@ -2,7 +2,7 @@
 
 var assert = require('assert');
 
-var Privacy = require('./privacy.js');
+var Privacy = require('../privacy.js');
 
 module.exports = function(data) {
   var stream = {};

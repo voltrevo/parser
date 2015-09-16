@@ -1,6 +1,6 @@
 'use strict';
 
-var Privacy = require('./privacy.js');
+var Privacy = require('../privacy.js');
 var Stream = require('./stream.js');
 
 module.exports = function(name, data) {
