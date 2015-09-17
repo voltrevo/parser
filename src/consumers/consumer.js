@@ -4,7 +4,7 @@ var Privacy = require('../privacy.js');
 
 module.exports = function(impl) {
   return function(stream) {
-    var mark = stream.mark();
+    var startMark = stream.mark();
 
     var privacy = Privacy();
 
@@ -25,8 +25,12 @@ module.exports = function(impl) {
     ));
 
     if (result.type === 'reject') {
-      stream.restore(mark);
+      stream.restore(startMark);
     }
+
+    var endMark = stream.mark();
+
+    result.location = [startMark, endMark];
 
     return result;
   };

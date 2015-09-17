@@ -6,29 +6,22 @@ module.exports = function(/* args... */) {
   var args = Array.prototype.slice.apply(arguments);
 
   return Consumer(function(stream, acceptValid, acceptInvalid, reject) {
-    var values = [];
+    var results = [];
     var invalids = [];
-    var validSoFar = true;
+    var returnType = acceptValid;
 
     for (var i = 0; i !== args.length; i++) {
       var currResult = args[i](stream);
-      values.push(currResult.value);
+      results.push(currResult);
 
       if (currResult.type === 'acceptInvalid') {
         invalids.push(i);
-        validSoFar = false;
+        returnType = acceptInvalid;
       } else if (currResult.type === 'reject') {
-        return reject(values);
+        return reject(results);
       }
     }
 
-    if (!validSoFar) {
-      return acceptInvalid({
-        values: values,
-        invalids: invalids
-      });
-    }
-
-    return acceptValid(values);
+    return returnType(results);
   });
 };
