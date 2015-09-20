@@ -19,6 +19,7 @@
     "json"
   ],
   "dependencies": {
+    "flatten-object-strict": "^1.0.1",
     "voltrevo-privacy": "^0.1.0"
   },
   "devDependencies": {
