@@ -1,189 +1,46 @@
-# parser
-A Javascript parsing library.
+# parser [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
+> A parser library based on functional composition of stream consumers.
 
-# TinyCpp Demo
-A quick demo is available to see the parser output for tinyCpp:
-```
-cd tinyCpp/demo
-node parseStuff.js
-```
 
-Which will parse stuff.cpp, and currently outputs the following:
-```
-[
-    {
-        "label": "function",
-        "value": {
-            "heading": {
-                "returnType": "int",
-                "name": "fib",
-                "arguments": [
-                    {
-                        "type": "int",
-                        "name": "n"
-                    }
-                ]
-            },
-            "body": [
-                {
-                    "label": "controlStructure",
-                    "value": {
-                        "label": "if",
-                        "value": {
-                            "condition": {
-                                "label": "variable",
-                                "value": "n"
-                            },
-                            "body": [
-                                {
-                                    "label": "controlStructure",
-                                    "value": {
-                                        "label": "if",
-                                        "value": {
-                                            "condition": {
-                                                "label": "expressionTree",
-                                                "value": {
-                                                    "lhs": {
-                                                        "label": "variable",
-                                                        "value": "n"
-                                                    },
-                                                    "operator": "-",
-                                                    "rhs": {
-                                                        "label": "value",
-                                                        "value": 1
-                                                    }
-                                                }
-                                            },
-                                            "body": [
-                                                {
-                                                    "label": "return",
-                                                    "value": {
-                                                        "label": "expressionTree",
-                                                        "value": {
-                                                            "lhs": {
-                                                                "label": "functionCall",
-                                                                "value": {
-                                                                    "name": "fib",
-                                                                    "arguments": [
-                                                                        {
-                                                                            "label": "expressionTree",
-                                                                            "value": {
-                                                                                "lhs": {
-                                                                                    "label": "variable",
-                                                                                    "value": "n"
-                                                                                },
-                                                                                "operator": "-",
-                                                                                "rhs": {
-                                                                                    "label": "value",
-                                                                                    "value": 2
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            },
-                                                            "operator": "+",
-                                                            "rhs": {
-                                                                "label": "functionCall",
-                                                                "value": {
-                                                                    "name": "fib",
-                                                                    "arguments": [
-                                                                        {
-                                                                            "label": "expressionTree",
-                                                                            "value": {
-                                                                                "lhs": {
-                                                                                    "label": "variable",
-                                                                                    "value": "n"
-                                                                                },
-                                                                                "operator": "-",
-                                                                                "rhs": {
-                                                                                    "label": "value",
-                                                                                    "value": 1
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ],
-                                            "continuation": {
-                                                "success": true,
-                                                "value": {
-                                                    "elseBody": {
-                                                        "label": "codeBlock",
-                                                        "value": [
-                                                            {
-                                                                "label": "return",
-                                                                "value": {
-                                                                    "label": "value",
-                                                                    "value": 1
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ],
-                            "continuation": {
-                                "success": true,
-                                "value": {
-                                    "elseBody": {
-                                        "label": "codeBlock",
-                                        "value": [
-                                            {
-                                                "label": "return",
-                                                "value": {
-                                                    "label": "value",
-                                                    "value": 0
-                                                }
-                                            }
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    {
-        "label": "function",
-        "value": {
-            "heading": {
-                "returnType": "int",
-                "name": "main",
-                "arguments": []
-            },
-            "body": [
-                {
-                    "label": "return",
-                    "value": {
-                        "label": "functionCall",
-                        "value": {
-                            "name": "fib",
-                            "arguments": [
-                                {
-                                    "label": "value",
-                                    "value": 5
-                                }
-                            ]
-                        }
-                    }
-                }
-            ]
-        }
-    }
-]
+## Install
+
+```sh
+$ npm install --save parser
 ```
 
-There are also lots of unit tests which give lots of example program snippets and expected outputs at tinyCpp/test/cppParse.js and can be run with:
+
+## Usage
+
+```js
+'use strict';
+
+var parser = require('parser');
+
+var foo = parser.string('foo');
+var bar = parser.string('bar');
+var baz = parser.string('baz');
+
+var demo = parser.sequence(
+  parser.oneOrMore(foo),
+  parser.many(bar),
+  baz
+);
+
+var stream = parser.stream('foobarbarbarbaz');
+
+console.log(demo(stream));
 ```
-mocha tinyCpp/test/cppParse.js
-```
+
+## License
+
+MIT © [Andrew Morris](http://andrewmorris.io/)
+
+
+[npm-image]: https://badge.fury.io/js/parser.svg
+[npm-url]: https://npmjs.org/package/parser
+[travis-image]: https://travis-ci.org/voltrevo/parser.svg?branch=master
+[travis-url]: https://travis-ci.org/voltrevo/parser
+[daviddm-image]: https://david-dm.org/voltrevo/parser.svg?theme=shields.io
+[daviddm-url]: https://david-dm.org/voltrevo/parser
+[coveralls-image]: https://coveralls.io/repos/voltrevo/parser/badge.svg
+[coveralls-url]: https://coveralls.io/r/voltrevo/parser
