@@ -8,7 +8,7 @@ var parser = require('../lib').tree;
 describe('parser', function() {
   describe('.streams', function() {
     describe('.stream', function() {
-      var Stream = parser.streams.stream;
+      var Stream = parser.streams.Stream;
 
       it('starts without next when empty', function() {
         var stream = Stream('');
