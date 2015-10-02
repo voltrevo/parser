@@ -1,10 +1,27 @@
 'use strict';
 
-var assert = require('assert');
-var parser = require('../lib');
+/* global describe it */
 
-describe('parser', function () {
-  it('should have unit test!', function () {
-    assert(false, 'we expected this package author to add actual unit tests.');
+var assert = require('assert');
+var parser = require('../lib').tree;
+
+describe('parser', function() {
+  describe('.streams', function() {
+    describe('.stream', function() {
+      var Stream = parser.streams.stream;
+
+      it('starts without next when empty', function() {
+        var stream = Stream('');
+        assert.equal(stream.hasNext(), false);
+      });
+
+      it('contains values it was constructed with', function() {
+        var stream = Stream('abc');
+
+        assert.equal(stream.next(), 'a');
+        assert.equal(stream.next(), 'b');
+        assert.equal(stream.next(), 'c');
+      });
+    });
   });
 });
