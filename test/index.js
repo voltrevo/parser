@@ -2,49 +2,22 @@
 
 /* global describe it */
 
+// core modules
 var assert = require('assert');
+
+// local modules
+var describeStream = require('./describers/Stream.js');
 var parser = require('../lib').tree;
 
 describe('parser', function() {
   describe('.streams', function() {
-    describe('.stream', function() {
-      var Stream = parser.streams.Stream;
+    describe('.Stream', function() {
+      describeStream(parser.streams.Stream);
+    });
 
-      it('starts without next when empty', function() {
-        var stream = Stream('');
-        assert.equal(stream.hasNext(), false);
-      });
-
-      it('contains values it was constructed with', function() {
-        var stream = Stream('abc');
-
-        assert.equal(stream.next(), 'a');
-        assert.equal(stream.next(), 'b');
-        assert.equal(stream.next(), 'c');
-      });
-
-      it('peek doesn\'t move the stream forward', function() {
-        var stream = Stream('abc');
-
-        assert.equal(stream.peek(), 'a');
-        assert.equal(stream.peek(), 'a');
-        assert.equal(stream.next(), 'a');
-      });
-
-      it('can mark and restore', function() {
-        var stream = Stream('abc');
-
-        assert.equal(stream.next(), 'a');
-
-        var mark = stream.mark();
-
-        assert.equal(stream.next(), 'b');
-        assert.equal(stream.next(), 'c');
-
-        stream.restore(mark);
-
-        assert.equal(stream.next(), 'b');
-        assert.equal(stream.next(), 'c');
+    describe('.LineStream', function() {
+      describeStream(function(data) {
+        return parser.streams.LineStream('test', data);
       });
     });
   });
