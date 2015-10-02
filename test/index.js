@@ -30,6 +30,22 @@ describe('parser', function() {
         assert.equal(stream.peek(), 'a');
         assert.equal(stream.next(), 'a');
       });
+
+      it('can mark and restore', function() {
+        var stream = Stream('abc');
+
+        assert.equal(stream.next(), 'a');
+
+        var mark = stream.mark();
+
+        assert.equal(stream.next(), 'b');
+        assert.equal(stream.next(), 'c');
+
+        stream.restore(mark);
+
+        assert.equal(stream.next(), 'b');
+        assert.equal(stream.next(), 'c');
+      });
     });
   });
 });
