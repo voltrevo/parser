@@ -22,6 +22,14 @@ describe('parser', function() {
         assert.equal(stream.next(), 'b');
         assert.equal(stream.next(), 'c');
       });
+
+      it('peek doesn\'t move the stream forward', function() {
+        var stream = Stream('abc');
+
+        assert.equal(stream.peek(), 'a');
+        assert.equal(stream.peek(), 'a');
+        assert.equal(stream.next(), 'a');
+      });
     });
   });
 });
