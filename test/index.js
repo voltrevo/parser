@@ -64,5 +64,13 @@ describe('parser', function() {
         return parser.streams.LineStream('test', data);
       });
     });
+
+    describe('.commentFilter', function() {
+      describeStream(function(data) {
+        return parser.streams.commentFilter(
+          parser.streams.LineStream('test', data)
+        );
+      });
+    });
   });
 });
