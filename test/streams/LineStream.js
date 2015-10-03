@@ -4,8 +4,8 @@
 
 var assert = require('assert');
 
-var describeStream = require('./describers/Stream.js');
-var LineStream = require('../lib/streams/LineStream.js');
+var describeStream = require('../describers/Stream.js');
+var LineStream = require('../../lib/streams/LineStream.js');
 
 describe('LineStream', function() {
   it('can describe marks and mark ranges', function() {
