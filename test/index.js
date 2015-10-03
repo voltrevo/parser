@@ -66,6 +66,21 @@ describe('parser', function() {
     });
 
     describe('.commentFilter', function() {
+      it('filters out comments', function() {
+        var stream = parser.streams.commentFilter(
+          parser.streams.LineStream('test', [
+            '// this should be ignored',
+            'a// more ignored // stuff',
+            'b'
+          ].join('\n'))
+        );
+
+        assert.equal(stream.next(), '\n');
+        assert.equal(stream.next(), 'a');
+        assert.equal(stream.next(), '\n');
+        assert.equal(stream.next(), 'b');
+      });
+
       describeStream(function(data) {
         return parser.streams.commentFilter(
           parser.streams.LineStream('test', data)
