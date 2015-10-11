@@ -20,7 +20,7 @@ describe('many', function() {
     assert(parseResult.accepted);
     assert(parseResult.valid);
 
-    assert.deepequal(
+    assert.deepEqual(
       parseResult.value.map(function(el) {
         return el.value;
       }),
@@ -38,6 +38,6 @@ describe('many', function() {
     assert(parseResult.valid);
 
     // many never rejects, it just finds zero matches
-    assert.deepequal(parseResult.value, []);
+    assert.deepEqual(parseResult.value, []);
   });
 });
