@@ -28,8 +28,8 @@ describe('or', function() {
       ]
     );
 
-    assert.equal(results[0].value.value, 'a');
-    assert.equal(results[1].value.value, 'b');
+    assert.equal(results[0].value, 'a');
+    assert.equal(results[1].value, 'b');
   });
 
   // TODO: Invalidity propagates
