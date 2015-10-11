@@ -13,9 +13,9 @@ var single = require('../../lib/consumers/single.js');
 describe('many', function() {
   it('accepts three a\'s in aaabbbccc', function() {
     var stream = linestream('test', 'aaabbbccc');
-    var parser = many(single('a'));
+    var consumer = many(single('a'));
 
-    var parseResult = parser(stream);
+    var parseResult = consumer(stream);
 
     assert(parseResult.accepted);
     assert(parseResult.valid);
@@ -30,9 +30,9 @@ describe('many', function() {
 
   it('accepts zero b\'s in aaabbbccc', function() {
     var stream = linestream('test', 'aaabbbccc');
-    var parser = many(single('b'));
+    var consumer = many(single('b'));
 
-    var parseResult = parser(stream);
+    var parseResult = consumer(stream);
 
     assert(parseResult.accepted);
     assert(parseResult.valid);

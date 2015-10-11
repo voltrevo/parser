@@ -13,9 +13,9 @@ var single = require('../../lib/consumers/single.js');
 describe('or', function() {
   it('or(a, b) accepts a and b and rejects c in abc', function() {
     var stream = linestream('test', 'abc');
-    var parser = or(single('a'), single('b'));
+    var consumer = or(single('a'), single('b'));
 
-    var results = [stream, stream, stream].map(parser);
+    var results = [stream, stream, stream].map(consumer);
 
     assert.deepEqual(
       results.map(function(result) {

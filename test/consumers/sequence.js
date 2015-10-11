@@ -13,13 +13,13 @@ var single = require('../../lib/consumers/single.js');
 describe('sequence', function() {
   it('sequence(a, b, c) accepts abc', function() {
     var stream = linestream('test', 'abc');
-    var parser = sequence(
+    var consumer = sequence(
       single('a'),
       single('b'),
       single('c')
     );
 
-    var parseResult = parser(stream);
+    var parseResult = consumer(stream);
 
     assert.deepEqual(
       parseResult.value,
