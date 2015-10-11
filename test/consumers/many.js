@@ -27,4 +27,17 @@ describe('many', function() {
       ['a', 'a', 'a']
     );
   });
+
+  it('accepts zero b\'s in aaabbbccc', function() {
+    var stream = LineStream('test', 'aaabbbccc');
+    var parser = many(single('b'));
+
+    var parseResult = parser(stream);
+
+    assert(parseResult.accepted);
+    assert(parseResult.valid);
+
+    // many never rejects, it just finds zero matches
+    assert.deepEqual(parseResult.value, []);
+  });
 });
