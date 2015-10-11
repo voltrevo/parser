@@ -31,4 +31,6 @@ describe('or', function() {
     assert.equal(results[0].value.value, 'a');
     assert.equal(results[1].value.value, 'b');
   });
+
+  // TODO: Invalidity propagates
 });
