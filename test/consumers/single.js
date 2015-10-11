@@ -7,7 +7,7 @@ var assert = require('assert');
 var LineStream = require('../../lib/streams/LineStream.js');
 var single = require('../../lib/consumers/single.js');
 
-describe('single(\'a\') on \'abc\'', function() {
+describe('single(a) on \'abc\'', function() {
   it('accepts a with value a', function() {
     var stream = LineStream('test', 'abc');
     var a = single('a');
