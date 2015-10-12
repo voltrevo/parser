@@ -20,12 +20,7 @@ describe('many', function() {
     assert(parseResult.accepted);
     assert(parseResult.valid);
 
-    assert.deepEqual(
-      parseResult.value.map(function(el) {
-        return el.value;
-      }),
-      ['a', 'a', 'a']
-    );
+    assert.deepEqual(parseResult.value, ['a', 'a', 'a']);
   });
 
   it('accepts zero b\'s in aaabbbccc', function() {
