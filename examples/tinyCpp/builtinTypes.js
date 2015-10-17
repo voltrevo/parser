@@ -1,3 +1,3 @@
-"use strict"
+'use strict';
 
-exports.int = require("./integer")
+exports.int = require('./integer');

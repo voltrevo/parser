@@ -1,7 +1,15 @@
-"use strict"
+'use strict';
 
-var fs = require("fs")
-var stream = require("../../stream")
-var cpp = require("../cppParse")
+/* eslint-disable no-console */
 
-console.log(JSON.stringify(cpp(new stream(fs.readFileSync("stuff.cpp").toString())).value, null, 4))
+var fs = require('fs');
+var Stream = require('../../../lib/streams/stream.js');
+var cpp = require('../cppParse.js');
+
+console.log(JSON.stringify(
+  cpp(Stream(
+    fs.readFileSync('stuff.cpp').toString()
+  )).value,
+  null,
+  4
+));
