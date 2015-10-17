@@ -24,6 +24,14 @@ describe('commentFilter', function() {
     assert.equal(stream.next(), 'b');
   });
 
+  it('hasNext when starting on a comment and there is a newline', function() {
+    var stream = commentFilter(
+      LineStream('test', '// foobar\n')
+    );
+
+    assert.equal(stream.hasNext(), true);
+  });
+
   describeStream(function(data) {
     return commentFilter(LineStream('test', data));
   });
