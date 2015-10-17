@@ -2,15 +2,19 @@
 
 /* global describe it */
 
+// core modules
 var fs = require('fs');
+var path = require('path');
 
+// community modules
 var expect = require('chai').expect;
-var LineStream = require('../../../lib/streams/lineStream.js');
-var json = require('../json.js'); // TODO: can this be 'parser/json'?
-var parser = require('../../../lib/index.js');
+
+// local modules
+var json = require('../json.js');
+var parser = require('../../../lib/index.js').flat;
 
 var parse = function(str) {
-  return parser.mustConsumeAll(json)(LineStream('test', str));
+  return parser.mustConsumeAll(json)(parser.Stream(str));
 };
 
 describe('jsonValue', function() {
@@ -33,7 +37,8 @@ describe('jsonValue', function() {
     testCases.forEach(function(testCase) {
       var ret = parse(testCase.input);
 
-      expect(ret.success).to.equal(true);
+      expect(ret.accepted).to.equal(true);
+      expect(ret.valid).to.equal(true);
       expect(ret.value).to.equal(testCase.output);
     });
   });
@@ -60,7 +65,8 @@ describe('jsonValue', function() {
     testCases.forEach(function(testCase) {
       var ret = parse(testCase.input);
 
-      expect(ret.success).to.equal(true);
+      expect(ret.accepted).to.equal(true);
+      expect(ret.valid).to.equal(true);
       expect(ret.value).to.equal(testCase.output);
     });
   });
@@ -80,7 +86,8 @@ describe('jsonValue', function() {
     testCases.forEach(function(testCase) {
       var ret = parse(testCase.input);
 
-      expect(ret.success).to.equal(true);
+      expect(ret.accepted).to.equal(true);
+      expect(ret.valid).to.equal(true);
       expect(ret.value).to.equal(testCase.output);
     });
   });
@@ -98,7 +105,7 @@ describe('jsonValue', function() {
       ['[1, 2]', [1, 2]],
       ['[[]]', [[]]],
       ['[[], 1]', [[], 1]],
-      ['[[], \'\', 1.1, true, null]', [[], '', 1.1, true, null]],
+      ['[[], "", 1.1, true, null]', [[], '', 1.1, true, null]],
       ['[[[[[]]]]]', [[[[[]]]]]]
     ].map(function(pair) {
       return {
@@ -110,7 +117,8 @@ describe('jsonValue', function() {
     testCases.forEach(function(testCase) {
       var ret = parse(testCase.input);
 
-      expect(ret.success).to.equal(true);
+      expect(ret.accepted).to.equal(true);
+      expect(ret.valid).to.equal(true);
       expect(ret.value).to.deep.equal(testCase.output);
     });
   });
@@ -134,13 +142,14 @@ describe('jsonValue', function() {
     testCases.forEach(function(testCase) {
       var ret = parse(testCase.input);
 
-      expect(ret.success).to.equal(true);
+      expect(ret.accepted).to.equal(true);
+      expect(ret.valid).to.equal(true);
       expect(ret.value).to.deep.equal(testCase.output);
     });
   });
 
   it('parses big.json', function(done) {
-    fs.readFile('json/test/big.json', function(err, data) {
+    fs.readFile(path.join(__dirname, 'big.json'), function(err, data) {
       if (err) {
         done(err);
         return;
@@ -149,7 +158,8 @@ describe('jsonValue', function() {
       var bigJsonString = '' + data;
       var parseResult = parse(bigJsonString);
 
-      expect(parseResult.success).to.equal(true);
+      expect(parseResult.accepted).to.equal(true);
+      expect(parseResult.valid).to.equal(true);
       expect(parseResult.value).to.deep.equal(JSON.parse(bigJsonString));
 
       done();

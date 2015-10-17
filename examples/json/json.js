@@ -25,12 +25,12 @@ var nonNegativeInteger = parser.transform(
 var integer = parser.transform(
   parser.namedSequence(
     parser.name('minusSign', parser.optional(
-      parser.char('-')
+      parser.single('-')
     )),
     parser.name('nonNegativeInteger', nonNegativeInteger)
   ),
   function(value) {
-    if (value.minusSign.success) {
+    if (value.minusSign.set) {
       return -value.nonNegativeInteger;
     }
 
@@ -57,7 +57,7 @@ json.string = parser.transform(
         parser.transform(
           parser.sequence(
             parser.single('\\'),
-            parser.anyChar
+            parser.any
           ),
           function(value) {
             var specialIndex = '\\ntr'.indexOf(value[1]); // TODO: are there others?
@@ -69,8 +69,8 @@ json.string = parser.transform(
             return value[1];
           }
         ),
-        parser.constrain(
-          parser.anyChar,
+        parser.constrainAcceptance(
+          parser.any,
           function(c) { return c !== '"'; }
         )
       )
@@ -83,40 +83,36 @@ json.string = parser.transform(
 );
 
 json.number = parser.transform(
-  parser.constrain(
-    parser.labelledSequence(
-      [
-        'minusSign',
-        parser.optional(parser.char('-'))
-      ],
-      [
-        'leadingDigits',
+  parser.constrainAcceptance(
+    parser.namedSequence(
+      parser.name('minusSign',
+        parser.optional(parser.single('-'))
+      ),
+      parser.name('leadingDigits',
         parser.many(parser.digit)
-      ],
-      [
-        'decimalPointAndDigits',
+      ),
+      parser.name('decimalPointAndDigits',
         parser.optional(
-          parser.labelledSequence(
-            ['decimalPoint', parser.char('.')],
-            ['decimalDigits', parser.many(parser.digit)]
+          parser.namedSequence(
+            parser.name('decimalPoint', parser.single('.')),
+            parser.name('decimalDigits', parser.many(parser.digit))
           )
         )
-      ],
-      [
-        'exponent',
+      ),
+      parser.name('exponent',
         parser.optional(
           parser.sequence(
-            parser.char('e'),
+            parser.single('e'),
             integer
           )
         )
-      ]
+      )
     ),
     function(n) {
       return (
         n.leadingDigits.length > 0 ||
         (
-          n.decimalPointAndDigits.success &&
+          n.decimalPointAndDigits.set &&
           n.decimalPointAndDigits.value.decimalDigits.length > 0
         )
       );
@@ -125,23 +121,23 @@ json.number = parser.transform(
   function(value) {
     var numStr = '';
 
-    if (value.minusSign.success) {
+    if (value.minusSign.set) {
       numStr += '-';
     }
 
     numStr += value.leadingDigits.join('');
 
-    if (value.decimalPointAndDigits.success) {
+    if (value.decimalPointAndDigits.set) {
       numStr += '.';
       numStr += value.decimalPointAndDigits.value.decimalDigits.join('');
     }
 
-    if (value.exponent.success) {
+    if (value.exponent.set) {
       numStr += 'e';
       numStr += value.exponent.value[1];
     }
 
-    return parseFloat(numStr);
+    return Number(numStr);
   }
 );
 
@@ -161,41 +157,43 @@ json.null = parser.transform(
 );
 
 json.array = parser.transform(
-  parser.sequence(
-    parser.char('['),
-    parser.optionalWhitespace,
-    parser.list(
-      json.value,
-      parser.wrapOptionalWhitespace(
-        parser.char(',')
+  parser.namedSequence(
+    parser.single('['),
+    parser.many(parser.whitespace),
+    parser.name('items',
+      parser.list(
+        json.value,
+        parser.wrapOptionalWhitespace(
+          parser.single(',')
+        )
       )
     ),
-    parser.optionalWhitespace,
-    parser.char(']')
+    parser.many(parser.whitespace),
+    parser.single(']')
   ),
   function(value) {
-    return value[2];
+    return value.items;
   }
 );
 
 json.object = parser.transform(
   parser.sequence(
-    parser.char('{'),
-    parser.optionalWhitespace,
+    parser.single('{'),
+    parser.many(parser.whitespace),
     parser.list(
-      parser.labelledSequence(
-        ['key', json.string],
-        ['separator', parser.wrapOptionalWhitespace(
-          parser.char(':')
-        )],
-        ['value', json.value]
+      parser.namedSequence(
+        parser.name('key', json.string),
+        parser.name('separator', parser.wrapOptionalWhitespace(
+          parser.single(':')
+        )),
+        parser.name('value', json.value)
       ),
       parser.wrapOptionalWhitespace(
-        parser.char(',')
+        parser.single(',')
       )
     ),
-    parser.optionalWhitespace,
-    parser.char('}')
+    parser.many(parser.whitespace),
+    parser.single('}')
   ),
   function(value) {
     var result = {};
