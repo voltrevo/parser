@@ -1,17 +1,16 @@
 'use strict';
 
 var parser = require('../lib/index.js');
-var Stream = require('../lib/streams/stream.js');
+var LineStream = require('../lib/streams/lineStream.js');
 var jsonParser = require('./json.js');
-var tinyCpp = require('./tinyCpp/cppParse.js');
+// var tinyCpp = require('./tinyCpp/cppParse.js');
 
-window.json = function(str) {
-  return jsonParser(Stream(str));
-};
+window.json = jsonParser;
 
-window.cpp = function(str) {
+/* window.cpp = function(str) {
   return parser.mustConsumeAll(tinyCpp)(Stream(str));
-};
+}; */
 
 window.json.impl = jsonParser.impl;
-window.stream = Stream;
+window.parser = parser;
+window.LineStream = LineStream;
