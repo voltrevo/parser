@@ -48,5 +48,10 @@ module.exports = function(Stream) {
       var stream = Stream('abc');
       stream.describeMark(stream.mark());
     });
+
+    it('has a describeMarkRange which doesn\'t throw when called with marks', function() {
+      var stream = Stream('abc');
+      stream.describeMarkRange(stream.mark(), stream.mark());
+    });
   });
 };
