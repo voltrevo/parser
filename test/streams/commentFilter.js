@@ -40,6 +40,22 @@ describe('commentFilter', function() {
     assert.equal(stream.hasNext(), true);
   });
 
+  it('\'/ \' has a next', function() {
+    var stream = commentFilter(
+      LineStream('test', '/ ')
+    );
+
+    assert.equal(stream.hasNext(), true);
+  });
+
+  it('\'//\' doesn\'t have a next', function() {
+    var stream = commentFilter(
+      LineStream('test', '//')
+    );
+
+    assert.equal(stream.hasNext(), false);
+  });
+
   describeStream(function(data) {
     return commentFilter(LineStream('test', data));
   });
