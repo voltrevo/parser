@@ -8,34 +8,38 @@ var deferField = function(obj, field) {
   });
 };
 
-var nonNegativeInteger = parser.transform(
-  parser.oneOrMore(parser.digit),
-  function(value) {
-    var result = 0;
+var nonNegativeInteger = parser.name('nonNegativeInteger',
+  parser.transform(
+    parser.oneOrMore(parser.digit),
+    function(value) {
+      var result = 0;
 
-    value.forEach(function(digit) {
-      result *= 10;
-      result += digit;
-    });
+      value.forEach(function(digit) {
+        result *= 10;
+        result += digit;
+      });
 
-    return result;
-  }
+      return result;
+    }
+  )
 );
 
-var integer = parser.transform(
-  parser.labelledSequence(
-    ['minusSign', parser.optional(
-      parser.single('-')
-    )],
-    ['nonNegativeInteger', nonNegativeInteger]
-  ),
-  function(value) {
-    if (value.minusSign.set) {
-      return -value.nonNegativeInteger;
-    }
+var integer = parser.name('integer',
+  parser.transform(
+    parser.labelledSequence(
+      ['minusSign', parser.optional(
+        parser.single('-')
+      )],
+      ['nonNegativeInteger', nonNegativeInteger]
+    ),
+    function(value) {
+      if (value.minusSign.set) {
+        return -value.nonNegativeInteger;
+      }
 
-    return value.nonNegativeInteger;
-  }
+      return value.nonNegativeInteger;
+    }
+  )
 );
 
 var json = {};
@@ -53,25 +57,31 @@ json.string = parser.transform(
   parser.sequence(
     parser.single('"'),
     parser.many(
-      parser.or(
-        parser.transform(
-          parser.sequence(
-            parser.single('\\'),
-            parser.any
+      parser.name('stringChar',
+        parser.or(
+          parser.name('escapedStringChar',
+            parser.transform(
+              parser.sequence(
+                parser.single('\\'),
+                parser.any
+              ),
+              function(value) {
+                var specialIndex = '\\ntr'.indexOf(value[1]); // TODO: are there others?
+
+                if (specialIndex !== -1) {
+                  return '\\\n\t\r'[specialIndex];
+                }
+
+                return value[1];
+              }
+            )
           ),
-          function(value) {
-            var specialIndex = '\\ntr'.indexOf(value[1]); // TODO: are there others?
-
-            if (specialIndex !== -1) {
-              return '\\\n\t\r'[specialIndex];
-            }
-
-            return value[1];
-          }
-        ),
-        parser.constrainAcceptance(
-          parser.any,
-          function(c) { return c !== '"'; }
+          parser.name('normalStringChar',
+            parser.constrainAcceptance(
+              parser.any,
+              function(c) { return c !== '"'; }
+            )
+          )
         )
       )
     ),
@@ -177,10 +187,10 @@ json.array = parser.transform(
 );
 
 json.object = parser.transform(
-  parser.sequence(
+  parser.labelledSequence(
     parser.single('{'),
     parser.many(parser.whitespace),
-    parser.list(
+    ['properties', parser.list(
       parser.labelledSequence(
         ['key', json.string],
         ['separator', parser.wrapOptionalWhitespace(
@@ -191,14 +201,14 @@ json.object = parser.transform(
       parser.wrapOptionalWhitespace(
         parser.single(',')
       )
-    ),
+    )],
     parser.many(parser.whitespace),
     parser.single('}')
   ),
   function(value) {
     var result = {};
 
-    value[2].forEach(function(property) {
+    value.properties.forEach(function(property) {
       result[property.key] = property.value;
     });
 
