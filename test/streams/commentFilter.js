@@ -56,6 +56,14 @@ describe('commentFilter', function() {
     assert.equal(stream.hasNext(), false);
   });
 
+  it('\'foo\' has a next', function() {
+    var stream = commentFilter(
+      LineStream('test', 'foo')
+    );
+
+    assert.equal(stream.hasNext(), true);
+  });
+
   describeStream(function(data) {
     return commentFilter(LineStream('test', data));
   });
