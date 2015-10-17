@@ -48,6 +48,13 @@ describe('LineStream', function() {
       [begin, secondLine, midSecondLine, thirdLine, last, end].map(ls.describeMark),
       ['test:1:1', 'test:2:1', 'test:2:3', 'test:3:1', 'test:3:6', 'test:4:1']
     );
+
+    assert.deepEqual(
+      [[begin, secondLine], [midSecondLine, thirdLine], [last, end]].map(function(pair) {
+        return ls.describeMarkRange(pair[0], pair[1]);
+      }),
+      ['test:1-2:1', 'test:2-3:3-1', 'test:3-4:6-1']
+    );
   });
 
   describeStream(function(data) {
