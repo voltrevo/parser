@@ -53,5 +53,22 @@ module.exports = function(Stream) {
       var stream = Stream('abc');
       stream.describeMarkRange(stream.mark(), stream.mark());
     });
+
+    it('can create a substream', function() {
+      var stream = Stream('abc');
+
+      stream.next();
+      var start = stream.mark(); // b
+      stream.next();
+      var end = stream.mark(); // c
+
+      var substream = stream.substream(start, end); // just b
+
+      assert.equal(stream.next(), 'c');
+      assert.equal(stream.hasNext(), false);
+
+      assert.equal(substream.next(), 'b');
+      assert.equal(substream.hasNext(), false);
+    });
   });
 };
