@@ -10,7 +10,7 @@ var sequence = require('../../lib/consumers/sequence.js');
 var string = require('../../lib/consumers/string.js');
 var Stream = require('../../lib/streams/stream.js');
 
-describe('digit', function() {
+describe('string', function() {
   it('accepts strings', function() {
     var stream = Stream('abcdef');
 
