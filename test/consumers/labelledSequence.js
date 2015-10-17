@@ -7,7 +7,6 @@ var assert = require('assert');
 
 // local modules
 var LineStream = require('../../lib/streams/lineStream.js');
-var name = require('../../lib/consumers/name.js');
 var labelledSequence = require('../../lib/consumers/labelledSequence.js');
 var single = require('../../lib/consumers/single.js');
 
