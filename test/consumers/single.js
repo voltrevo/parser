@@ -4,7 +4,7 @@
 
 var assert = require('assert');
 
-var LineStream = require('../../lib/streams/LineStream.js');
+var LineStream = require('../../lib/streams/lineStream.js');
 var single = require('../../lib/consumers/single.js');
 
 describe('single(a) on \'abc\'', function() {

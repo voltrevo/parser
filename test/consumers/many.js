@@ -6,13 +6,13 @@
 var assert = require('assert');
 
 // local modules
-var linestream = require('../../lib/streams/linestream.js');
+var LineStream = require('../../lib/streams/lineStream.js');
 var many = require('../../lib/consumers/many.js');
 var single = require('../../lib/consumers/single.js');
 
 describe('many', function() {
   it('accepts three a\'s in aaabbbccc', function() {
-    var stream = linestream('test', 'aaabbbccc');
+    var stream = LineStream('test', 'aaabbbccc');
     var consumer = many(single('a'));
 
     var parseResult = consumer(stream);
@@ -24,7 +24,7 @@ describe('many', function() {
   });
 
   it('accepts zero b\'s in aaabbbccc', function() {
-    var stream = linestream('test', 'aaabbbccc');
+    var stream = LineStream('test', 'aaabbbccc');
     var consumer = many(single('b'));
 
     var parseResult = consumer(stream);

@@ -6,7 +6,7 @@ var assert = require('assert');
 
 var commentFilter = require('../../lib/streams/commentFilter.js');
 var describeStream = require('../describers/Stream.js');
-var LineStream = require('../../lib/streams/LineStream.js');
+var LineStream = require('../../lib/streams/lineStream.js');
 
 describe('commentFilter', function() {
   it('filters out comments', function() {

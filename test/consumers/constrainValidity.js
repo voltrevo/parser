@@ -6,13 +6,13 @@
 var assert = require('assert');
 
 // local modules
-var linestream = require('../../lib/streams/linestream.js');
+var LineStream = require('../../lib/streams/lineStream.js');
 var constrainValidity = require('../../lib/consumers/constrainValidity.js');
 var single = require('../../lib/consumers/single.js');
 
 describe('constrainValidity', function() {
   it('can make the single(a) in abc invalid', function() {
-    var stream = linestream('test', 'abc');
+    var stream = LineStream('test', 'abc');
 
     var consumer = constrainValidity(
       single('a'),

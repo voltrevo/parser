@@ -7,7 +7,7 @@ var assert = require('assert');
 
 // local modules
 var invalid = require('../../lib/consumers/invalid.js');
-var LineStream = require('../../lib/streams/LineStream.js');
+var LineStream = require('../../lib/streams/lineStream.js');
 var sequence = require('../../lib/consumers/sequence.js');
 var single = require('../../lib/consumers/single.js');
 

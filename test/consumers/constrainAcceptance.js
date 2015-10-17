@@ -6,7 +6,7 @@
 var assert = require('assert');
 
 // local modules
-var LineStream = require('../../lib/streams/LineStream.js');
+var LineStream = require('../../lib/streams/lineStream.js');
 var constrainAcceptance = require('../../lib/consumers/constrainAcceptance.js');
 var many = require('../../lib/consumers/many.js');
 var or = require('../../lib/consumers/or.js');
