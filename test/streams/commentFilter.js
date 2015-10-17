@@ -9,7 +9,7 @@ var describeStream = require('../describers/Stream.js');
 var LineStream = require('../../lib/streams/lineStream.js');
 
 describe('commentFilter', function() {
-  it('filters out comments', function() {
+  it('filters out line comments', function() {
     var stream = commentFilter(
       LineStream('test', [
         '// this should be ignored',
@@ -20,6 +20,38 @@ describe('commentFilter', function() {
 
     assert.equal(stream.next(), '\n');
     assert.equal(stream.next(), 'a');
+    assert.equal(stream.next(), '\n');
+    assert.equal(stream.next(), 'b');
+  });
+
+  it('filters out block comments', function() {
+    var stream = commentFilter(
+      LineStream('test', [
+        '/* this should be ignored */',
+        'a/* more ignored *//* stuff */',
+        'b'
+      ].join('\n'))
+    );
+
+    assert.equal(stream.next(), '\n');
+    assert.equal(stream.next(), 'a');
+    assert.equal(stream.next(), '\n');
+    assert.equal(stream.next(), 'b');
+  });
+
+  it('filters out nested block comments', function() {
+    var stream = commentFilter(
+      LineStream('test', [
+        '/* this should be ignored',
+        '  code = here;',
+        '  ',
+        '  /* this inner block comment shouldn\'t interfere with the outer block comment */',
+        '  more.code = here',
+        '*/',
+        'b'
+      ].join('\n'))
+    );
+
     assert.equal(stream.next(), '\n');
     assert.equal(stream.next(), 'b');
   });
