@@ -32,6 +32,14 @@ describe('commentFilter', function() {
     assert.equal(stream.hasNext(), true);
   });
 
+  it('single \'/\' has a next', function() {
+    var stream = commentFilter(
+      LineStream('test', '/')
+    );
+
+    assert.equal(stream.hasNext(), true);
+  });
+
   describeStream(function(data) {
     return commentFilter(LineStream('test', data));
   });
