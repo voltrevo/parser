@@ -12,7 +12,7 @@ describe('single(a) on \'abc\'', function() {
     var stream = LineStream('test', 'abc');
     var a = single('a');
 
-    var parseResult = a(stream);
+    var parseResult = a.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
@@ -23,7 +23,7 @@ describe('single(a) on \'abc\'', function() {
     var stream = LineStream('test', 'abc');
     var b = single('b');
 
-    var parseResult = b(stream);
+    var parseResult = b.consume(stream);
 
     assert.equal(parseResult.accepted, false);
     assert.equal(parseResult.valid, false);

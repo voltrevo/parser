@@ -19,7 +19,7 @@ describe('mustConsumeAll', function() {
       many(digit)
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
@@ -33,7 +33,7 @@ describe('mustConsumeAll', function() {
       many(digit)
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, false);

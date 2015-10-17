@@ -15,7 +15,7 @@ describe('many', function() {
     var stream = LineStream('test', 'aaabbbccc');
     var consumer = many(single('a'));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert(parseResult.accepted);
     assert(parseResult.valid);
@@ -27,7 +27,7 @@ describe('many', function() {
     var stream = LineStream('test', 'aaabbbccc');
     var consumer = many(single('b'));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert(parseResult.accepted);
     assert(parseResult.valid);

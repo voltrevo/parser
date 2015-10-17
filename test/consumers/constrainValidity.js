@@ -19,7 +19,7 @@ describe('constrainValidity', function() {
       function() { return false; }
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, false);

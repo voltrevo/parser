@@ -18,7 +18,7 @@ describe('oneOrMore', function() {
 
     var consumer = oneOrMore(single('z'));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, false);
     assert.equal(parseResult.valid, false);
@@ -29,7 +29,7 @@ describe('oneOrMore', function() {
 
     var consumer = oneOrMore(single('z'));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
@@ -44,7 +44,7 @@ describe('oneOrMore', function() {
       invalid(single('i'))
     ));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, false);
@@ -56,10 +56,10 @@ describe('oneOrMore', function() {
         return invalidation.reason;
       }),
       [
-        'many: element 3 is invalid',
-        'many: element 5 is invalid',
-        'many: element 6 is invalid',
-        'many: element 9 is invalid'
+        'Element 3 is invalid.',
+        'Element 5 is invalid.',
+        'Element 6 is invalid.',
+        'Element 9 is invalid.'
       ]
     );
   });

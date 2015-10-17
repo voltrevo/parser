@@ -17,7 +17,7 @@ describe('list', function() {
 
     var consumer = list(single('z'), single(','));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
@@ -29,7 +29,7 @@ describe('list', function() {
 
     var consumer = list(single('z'), single(','));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
@@ -44,7 +44,7 @@ describe('list', function() {
       invalid(single(','))
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, false);
@@ -71,8 +71,8 @@ describe('list', function() {
         })
       ),
       [
-        'many: element 0 is invalid',
-        'many: element 1 is invalid'
+        'Element 0 is invalid.',
+        'Element 1 is invalid.'
       ]
     );
   });

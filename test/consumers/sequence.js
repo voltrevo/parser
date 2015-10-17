@@ -20,7 +20,7 @@ describe('sequence', function() {
       single('c')
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.deepEqual(
       parseResult.value,
@@ -38,7 +38,7 @@ describe('sequence', function() {
       invalid(single('d'))
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, false);
@@ -59,7 +59,7 @@ describe('sequence', function() {
   it('rejects when an element rejects', function() {
     var stream = LineStream('test', 'a');
     var consumer = sequence(single('x'));
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, false);
   });

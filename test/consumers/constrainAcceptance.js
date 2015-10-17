@@ -51,7 +51,7 @@ describe('constrainAcceptance', function() {
       )
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.deepEqual(
       parseResult.value.map(function(sequenceElement) {

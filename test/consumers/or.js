@@ -16,7 +16,7 @@ describe('or', function() {
     var stream = LineStream('test', 'abc');
     var consumer = or(single('a'), single('b'));
 
-    var results = [stream, stream, stream].map(consumer);
+    var results = [stream, stream, stream].map(consumer.consume);
 
     assert.deepEqual(
       results.map(function(result) {
@@ -37,7 +37,7 @@ describe('or', function() {
     var stream = LineStream('test', 'a');
     var consumer = or(invalid(single('a')));
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.deepEqual(parseResult.valid, false);
   });
@@ -52,7 +52,7 @@ describe('or', function() {
       invalid(single('d'))
     );
 
-    var results = [stream, stream, stream, stream].map(consumer);
+    var results = [stream, stream, stream, stream].map(consumer.consume);
 
     assert.deepEqual(
       results.map(function(result) {
@@ -76,7 +76,7 @@ describe('or', function() {
       single('c')
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, false);
     assert.equal(parseResult.valid, false);

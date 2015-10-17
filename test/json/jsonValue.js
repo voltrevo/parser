@@ -14,7 +14,7 @@ var json = require('../../examples/json.js');
 var parser = require('../../lib/index.js').flat;
 
 var parse = function(str) {
-  return parser.mustConsumeAll(json)(parser.Stream(str));
+  return parser.mustConsumeAll(json).consume(parser.Stream(str));
 };
 
 describe('jsonValue', function() {

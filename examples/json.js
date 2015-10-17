@@ -3,7 +3,7 @@
 var parser = require('../lib/index.js').flat;
 
 var deferField = function(obj, field) {
-  return parser.defer(function() {
+  return parser.defer(field, function() {
     return obj[field];
   });
 };
@@ -23,11 +23,11 @@ var nonNegativeInteger = parser.transform(
 );
 
 var integer = parser.transform(
-  parser.namedSequence(
-    parser.name('minusSign', parser.optional(
+  parser.labelledSequence(
+    ['minusSign', parser.optional(
       parser.single('-')
-    )),
-    parser.name('nonNegativeInteger', nonNegativeInteger)
+    )],
+    ['nonNegativeInteger', nonNegativeInteger]
   ),
   function(value) {
     if (value.minusSign.set) {
@@ -84,29 +84,29 @@ json.string = parser.transform(
 
 json.number = parser.transform(
   parser.constrainAcceptance(
-    parser.namedSequence(
-      parser.name('minusSign',
+    parser.labelledSequence(
+      ['minusSign',
         parser.optional(parser.single('-'))
-      ),
-      parser.name('leadingDigits',
+      ],
+      ['leadingDigits',
         parser.many(parser.digit)
-      ),
-      parser.name('decimalPointAndDigits',
+      ],
+      ['decimalPointAndDigits',
         parser.optional(
-          parser.namedSequence(
-            parser.name('decimalPoint', parser.single('.')),
-            parser.name('decimalDigits', parser.many(parser.digit))
+          parser.labelledSequence(
+            ['decimalPoint', parser.single('.')],
+            ['decimalDigits', parser.many(parser.digit)]
           )
         )
-      ),
-      parser.name('exponent',
+      ],
+      ['exponent',
         parser.optional(
           parser.sequence(
             parser.single('e'),
             integer
           )
         )
-      )
+      ]
     ),
     function(n) {
       return (
@@ -157,17 +157,17 @@ json.null = parser.transform(
 );
 
 json.array = parser.transform(
-  parser.namedSequence(
+  parser.labelledSequence(
     parser.single('['),
     parser.many(parser.whitespace),
-    parser.name('items',
+    ['items',
       parser.list(
         json.value,
         parser.wrapOptionalWhitespace(
           parser.single(',')
         )
       )
-    ),
+    ],
     parser.many(parser.whitespace),
     parser.single(']')
   ),
@@ -181,12 +181,12 @@ json.object = parser.transform(
     parser.single('{'),
     parser.many(parser.whitespace),
     parser.list(
-      parser.namedSequence(
-        parser.name('key', json.string),
-        parser.name('separator', parser.wrapOptionalWhitespace(
+      parser.labelledSequence(
+        ['key', json.string],
+        ['separator', parser.wrapOptionalWhitespace(
           parser.single(':')
-        )),
-        parser.name('value', json.value)
+        )],
+        ['value', json.value]
       ),
       parser.wrapOptionalWhitespace(
         parser.single(',')

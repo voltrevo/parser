@@ -16,7 +16,7 @@ describe('whitespace', function() {
 
     var consumer = many(whitespace);
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);

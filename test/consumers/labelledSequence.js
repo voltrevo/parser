@@ -8,34 +8,34 @@ var assert = require('assert');
 // local modules
 var LineStream = require('../../lib/streams/lineStream.js');
 var name = require('../../lib/consumers/name.js');
-var namedSequence = require('../../lib/consumers/namedSequence.js');
+var labelledSequence = require('../../lib/consumers/labelledSequence.js');
 var single = require('../../lib/consumers/single.js');
 
-describe('namedSequence', function() {
-  it('no named elements produces an empty object', function() {
+describe('labelledSequence', function() {
+  it('no labelled elements produces an empty object', function() {
     var stream = LineStream('test', 'abc');
 
-    var consumer = namedSequence(
+    var consumer = labelledSequence(
       single('a'),
       single('b'),
       single('c')
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.deepEqual(parseResult.value, {});
   });
 
-  it('named elements show up as fields in the result', function() {
+  it('labelled elements show up as fields in the result', function() {
     var stream = LineStream('test', 'abc');
 
-    var consumer = namedSequence(
-      name('first', single('a')),
+    var consumer = labelledSequence(
+      ['first', single('a')],
       single('b'),
-      name('last', single('c'))
+      ['last', single('c')]
     );
 
-    var parseResult = consumer(stream);
+    var parseResult = consumer.consume(stream);
 
     assert.deepEqual(
       parseResult.value,
