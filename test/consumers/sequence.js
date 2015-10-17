@@ -50,8 +50,8 @@ describe('sequence', function() {
         return [invalidation.reason, invalidation.ref.value];
       }),
       [
-        ['Element invalid.', 'b'],
-        ['Element invalid.', 'd']
+        ['Element invalid', 'b'],
+        ['Element invalid', 'd']
       ]
     );
   });

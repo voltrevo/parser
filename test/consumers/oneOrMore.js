@@ -56,10 +56,10 @@ describe('oneOrMore', function() {
         return invalidation.reason;
       }),
       [
-        'Element 3 is invalid.',
-        'Element 5 is invalid.',
-        'Element 6 is invalid.',
-        'Element 9 is invalid.'
+        'Element 3 is invalid',
+        'Element 5 is invalid',
+        'Element 6 is invalid',
+        'Element 9 is invalid'
       ]
     );
   });

@@ -42,7 +42,7 @@ describe('mustConsumeAll', function() {
 
     assert.deepEqual(
       parseResult.invalidations[0].reason,
-      'Wrapped consumer didn\'t consume all of the stream.'
+      'Wrapped consumer didn\'t consume all of the stream'
     );
   });
 });

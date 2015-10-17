@@ -55,7 +55,7 @@ describe('list', function() {
       parseResult.invalidations.map(function(invalidation) {
         return invalidation.reason;
       }),
-      ['Wrapped consumer invalid.']
+      ['Wrapped consumer invalid']
     );
 
     // Within that tail, there are two delimiters that are invalid.
@@ -71,8 +71,8 @@ describe('list', function() {
         })
       ),
       [
-        'Element 0 is invalid.',
-        'Element 1 is invalid.'
+        'Element 0 is invalid',
+        'Element 1 is invalid'
       ]
     );
   });

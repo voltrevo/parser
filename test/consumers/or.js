@@ -86,9 +86,9 @@ describe('or', function() {
         return invalidation.reason;
       }),
       [
-        'Candidate rejected.',
-        'Candidate rejected.',
-        'Candidate rejected.',
+        'Candidate rejected',
+        'Candidate rejected',
+        'Candidate rejected',
         'All candidates rejected.'
       ]
     );
