@@ -28,4 +28,8 @@ describe('single(a) on \'abc\'', function() {
     assert.equal(parseResult.accepted, false);
     assert.equal(parseResult.valid, false);
   });
+
+  it('has the name \'single\' when argument is not a string', function() {
+    assert.equal(single({}).name, 'single');
+  });
 });
