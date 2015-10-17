@@ -14,3 +14,4 @@ window.json = jsonParser;
 window.json.impl = jsonParser.impl;
 window.parser = parser;
 window.LineStream = LineStream;
+window.describeResult = require('../lib/util/describeResult.js');

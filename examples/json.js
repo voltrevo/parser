@@ -40,14 +40,14 @@ var integer = parser.transform(
 
 var json = {};
 
-json.value = parser.or(
+json.value = parser.name('json', parser.or(
   deferField(json, 'array'),
   deferField(json, 'object'),
   deferField(json, 'string'),
   deferField(json, 'number'),
   deferField(json, 'bool'),
   deferField(json, 'null')
-);
+));
 
 json.string = parser.transform(
   parser.sequence(
