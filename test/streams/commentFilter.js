@@ -64,6 +64,14 @@ describe('commentFilter', function() {
     assert.equal(stream.hasNext(), true);
   });
 
+  it('next is \'/\' when the \'/\' isn\'t followed by another \'/\'', function() {
+    var stream = commentFilter(
+      LineStream('test', '/ ')
+    );
+
+    assert.equal(stream.next(), '/');
+  });
+
   describeStream(function(data) {
     return commentFilter(LineStream('test', data));
   });
