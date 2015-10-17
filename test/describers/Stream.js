@@ -43,5 +43,10 @@ module.exports = function(Stream) {
       assert.equal(stream.next(), 'b');
       assert.equal(stream.next(), 'c');
     });
+
+    it('has a describeMark which doesn\'t throw when called with a mark', function() {
+      var stream = Stream('abc');
+      stream.describeMark(stream.mark());
+    });
   });
 };
