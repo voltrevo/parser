@@ -1,6 +1,6 @@
 'use strict';
 
-var parser = require('../../lib/index.js').flat;
+var parser = require('../lib/index.js').flat;
 
 var deferField = function(obj, field) {
   return parser.defer(function() {

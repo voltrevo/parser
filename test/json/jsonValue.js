@@ -10,8 +10,8 @@ var path = require('path');
 var expect = require('chai').expect;
 
 // local modules
-var json = require('../json.js');
-var parser = require('../../../lib/index.js').flat;
+var json = require('../../examples/json.js');
+var parser = require('../../lib/index.js').flat;
 
 var parse = function(str) {
   return parser.mustConsumeAll(json)(parser.Stream(str));
