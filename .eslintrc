@@ -4,10 +4,11 @@
   "rules": {
     "vars-on-top": 0,
     "no-warning-comments": 0,
-    "dot-notation": [2, {"allowKeywords": true}],
+    "dot-notation": [2, { "allowKeywords": true }],
     "no-undef-init": 0,
     "no-nested-ternary": 0,
     "new-cap": 0,
-    "no-constant-condition": 0
+    "no-constant-condition": 0,
+    "yoda": [2, "never", { "exceptRange": true }]
   }
 }
