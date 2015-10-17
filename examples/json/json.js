@@ -1,8 +1,12 @@
 'use strict';
 
-var parser = require('../../lib/index.js');
+var parser = require('../../lib/index.js').flat;
 
-var defer = parser.defer;
+var deferField = function(obj, field) {
+  return parser.defer(function() {
+    return obj[field];
+  });
+};
 
 var nonNegativeInteger = parser.transform(
   parser.oneOrMore(parser.digit),
@@ -19,11 +23,11 @@ var nonNegativeInteger = parser.transform(
 );
 
 var integer = parser.transform(
-  parser.labelledSequence(
-    ['minusSign', parser.optional(
+  parser.namedSequence(
+    parser.name('minusSign', parser.optional(
       parser.char('-')
-    )],
-    ['nonNegativeInteger', nonNegativeInteger]
+    )),
+    parser.name('nonNegativeInteger', nonNegativeInteger)
   ),
   function(value) {
     if (value.minusSign.success) {
@@ -37,22 +41,22 @@ var integer = parser.transform(
 var json = {};
 
 json.value = parser.or(
-  defer(json, 'array'),
-  defer(json, 'object'),
-  defer(json, 'string'),
-  defer(json, 'number'),
-  defer(json, 'bool'),
-  defer(json, 'null')
+  deferField(json, 'array'),
+  deferField(json, 'object'),
+  deferField(json, 'string'),
+  deferField(json, 'number'),
+  deferField(json, 'bool'),
+  deferField(json, 'null')
 );
 
 json.string = parser.transform(
   parser.sequence(
-    parser.char('\''),
+    parser.single('"'),
     parser.many(
       parser.or(
         parser.transform(
           parser.sequence(
-            parser.char('\\'),
+            parser.single('\\'),
             parser.anyChar
           ),
           function(value) {
@@ -67,11 +71,11 @@ json.string = parser.transform(
         ),
         parser.constrain(
           parser.anyChar,
-          function(c) { return c !== '\''; }
+          function(c) { return c !== '"'; }
         )
       )
     ),
-    parser.char('\'')
+    parser.single('"')
   ),
   function(value) {
     return value[1].join('');
