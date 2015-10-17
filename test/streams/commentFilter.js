@@ -72,6 +72,22 @@ describe('commentFilter', function() {
     assert.equal(stream.next(), '/');
   });
 
+  it('next on \'//\' throws', function() {
+    var stream = commentFilter(
+      LineStream('test', '//')
+    );
+
+    var caughtException = undefined;
+
+    try {
+      stream.next();
+    } catch (e) {
+      caughtException = e;
+    }
+
+    assert.equal(!!caughtException, true);
+  });
+
   describeStream(function(data) {
     return commentFilter(LineStream('test', data));
   });
