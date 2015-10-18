@@ -11,6 +11,7 @@ var block = require('../../lib/consumers/block.js');
 var LineStream = require('../../lib/streams/lineStream.js');
 var many = require('../../lib/consumers/many.js');
 var single = require('../../lib/consumers/single.js');
+var string = require('../../lib/consumers/string.js');
 
 var getStreamContent = function(stream) {
   return many(any).consume(stream).value;
@@ -51,5 +52,21 @@ describe('block', function() {
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
     assert.deepEqual(getStreamContent(parseResult.value), '{{{{}}{}{}}}'.split(''));
+  });
+
+  it('can skip over the skipper instead of seeing an end of a block', function() {
+    var stream = LineStream('test', '{foo "}" bar}');
+
+    var consumer = block(
+      single('{'),
+      string('"}"'),
+      single('}')
+    );
+
+    var parseResult = consumer.consume(stream);
+
+    assert.equal(parseResult.accepted, true);
+    assert.equal(parseResult.valid, true);
+    assert.deepEqual(getStreamContent(parseResult.value), 'foo "}" bar'.split(''));
   });
 });
