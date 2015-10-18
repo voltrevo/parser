@@ -4,9 +4,9 @@
 
 var expect = require('chai').expect;
 
-var parser = require('../../../lib/index.js').flat;
-var Stream = require('../../../lib/streams/stream.js');
-var cpp = require('../cppParse.js').impl;
+var parser = require('../lib/index.js').flat;
+var Stream = require('../lib/streams/stream.js');
+var cpp = require('../examples/tinyCpp/cppParse.js').impl;
 
 var testTemplate = function(consumerName, opts) {
   var consumer = parser.mustConsumeAll(cpp[consumerName]);
