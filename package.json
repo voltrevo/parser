@@ -1,6 +1,6 @@
 {
   "name": "voltrevo-parser",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A parser library based on functional composition of stream consumers.",
   "homepage": "https://github.com/voltrevo/parser#readme",
   "repository": "voltrevo/parser",
