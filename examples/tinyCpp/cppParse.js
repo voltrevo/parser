@@ -1,14 +1,21 @@
 'use strict';
 
-var Stream = require('../../lib/streams/stream.js');
-var parser = require('../../lib/index.js');
+var parser = require('../../lib/index.js').flat;
+
+var deferField = function(obj, field) {
+  return parser.defer(field, function() {
+    return obj[field];
+  });
+};
 
 var cpp = {};
 
 cpp.identifier = parser.transform(
-  parser.constrain(
+  parser.constrainAcceptance(
     parser.oneOrMore(
-      parser.regexChar(/^[a-zA-Z0-9_]$/)
+      parser.constrainAcceptance(parser.any, function(value) {
+        return /^[a-zA-Z0-9_]$/.test(value);
+      })
     ),
     function(value) {
       return !/^[0-9]$/.test(value[0]);
@@ -19,26 +26,21 @@ cpp.identifier = parser.transform(
   }
 );
 
-cpp.typename = parser.transform(
-  parser.or(
-    // parser.string('void'), TODO
-    parser.string('int')
-  ),
-  function(value) {
-    return value.join(''); // TODO: this transform shouldn't be necessary
-  }
+cpp.typename = parser.or(
+  // parser.string('void'), TODO
+  parser.string('int')
 );
 
 cpp.integer = parser.transform(
   parser.sequence(
-    parser.optional(parser.char('-')),
+    parser.optional(parser.single('-')),
     parser.oneOrMore(parser.digit)
   ),
   function(value) {
     var minusSign = value[0];
     var digits = value[1];
 
-    return (minusSign.success ? -1 : 1) * Number(digits.join(''));
+    return (minusSign.set ? -1 : 1) * Number(digits.join(''));
   }
 );
 
@@ -46,73 +48,45 @@ parser.constantValue = parser.or(
   cpp.integer
 );
 
-cpp.globalVariableDeclaration = parser.transform(
-  parser.labelledSequence(
-    ['type', cpp.typename],
-    ['w1', parser.whitespace],
-    ['name', cpp.identifier],
-    ['w2', parser.optionalWhitespace],
-    ['equals', parser.char('=')],
-    ['w3', parser.optionalWhitespace],
-    ['value', parser.constantValue],
-    ['semicolon', parser.char(';')]
-  ),
-  function(value) {
-    delete value.w1;
-    delete value.w2;
-    delete value.equals;
-    delete value.w3;
-    delete value.semicolon;
-
-    return value;
-  }
+cpp.globalVariableDeclaration = parser.labelledSequence(
+  ['type', cpp.typename],
+  parser.whitespace,
+  ['name', cpp.identifier],
+  parser.many(parser.whitespace),
+  parser.single('='),
+  parser.many(parser.whitespace),
+  ['value', parser.constantValue],
+  parser.single(';')
 );
 
 cpp.argumentList = parser.list(
-  parser.transform(
-    parser.sequence(
-      cpp.typename,
-      parser.whitespace,
-      cpp.identifier
-    ),
-    function(value) {
-      return {
-        type: value[0],
-        name: value[2]
-      };
-    }
+  parser.labelledSequence(
+    ['type', cpp.typename],
+    parser.whitespace,
+    ['name', cpp.identifier]
   ),
   parser.wrapOptionalWhitespace(
-    parser.char(',')
+    parser.single(',')
   )
 );
 
-cpp.functionHeading = parser.transform(
-  parser.sequence(
-    cpp.typename,
-    parser.whitespace,
-    cpp.identifier,
-    parser.optionalWhitespace,
-    parser.char('('),
-    parser.wrapOptionalWhitespace(
-      cpp.argumentList
-    ),
-    parser.char(')')
-  ),
-  function(value) {
-    return {
-      returnType: value[0],
-      name: value[2],
-      arguments: value[5]
-    };
-  }
+cpp.functionHeading = parser.labelledSequence(
+  ['returnType', cpp.typename],
+  parser.whitespace,
+  ['name', cpp.identifier],
+  parser.many(parser.whitespace),
+  parser.single('('),
+  ['arguments', parser.wrapOptionalWhitespace(
+    cpp.argumentList
+  )],
+  parser.single(')')
 );
 
 cpp.functionForwardDeclaration = parser.transform(
   parser.sequence(
     cpp.functionHeading,
-    parser.optionalWhitespace,
-    parser.char(';')
+    parser.many(parser.whitespace),
+    parser.single(';')
   ),
   function(value) {
     return value[0];
@@ -120,22 +94,21 @@ cpp.functionForwardDeclaration = parser.transform(
 );
 
 cpp.block = parser.block(
-  parser.char('{'),
-  parser.any,
-  parser.char('}')
+  parser.single('{'),
+  parser.single('}')
 );
 
 cpp.operator = parser.or(
-  parser.char('+'),
-  parser.char('-'),
-  parser.char('*'),
-  parser.char('/'),
-  parser.char('=')
+  parser.single('+'),
+  parser.single('-'),
+  parser.single('*'),
+  parser.single('/'),
+  parser.single('=')
 );
 
 cpp.parenthesis = parser.or(
-  parser.char('('),
-  parser.char(')')
+  parser.single('('),
+  parser.single(')')
 );
 
 cpp.operatorSets = [
@@ -150,14 +123,14 @@ cpp.tokenize = parser.transform(
       parser.labelledOr(
         ['value', cpp.integer],
         ['operator', cpp.operator],
-        ['comma', parser.char(',')],
+        ['comma', parser.single(',')],
         ['parenthesis', cpp.parenthesis],
         ['variable', cpp.identifier]
       )
     )
   ),
   function(value) {
-    return Stream(value);
+    return parser.Stream(value);
   }
 );
 
@@ -166,18 +139,17 @@ cpp.functionCall = parser.transform(
     parser.if(function(token) {
       return token.label === 'variable';
     }),
-    parser.layer(
+    parser.pipe(
       parser.block(
         parser.if(function(token) {
           return token.value === '(';
         }),
-        parser.any,
         parser.if(function(token) {
           return token.value === ')';
         })
       ),
       parser.list(
-        parser.layer(
+        parser.pipe(
           parser.transform(
             function(stream) {
               var depth = 0;
@@ -193,10 +165,10 @@ cpp.functionCall = parser.transform(
               )(stream);
             },
             function(value) {
-              return Stream(value);
+              return parser.Stream(value);
             }
           ),
-          parser.defer(cpp, 'tokenExpression')
+          deferField(cpp, 'tokenExpression')
         ),
         parser.if(function(token) {
           return token.label === 'comma';
@@ -215,17 +187,16 @@ cpp.functionCall = parser.transform(
   }
 );
 
-cpp.expressionInParenthesis = parser.layer(
+cpp.expressionInParenthesis = parser.pipe(
   parser.block(
     parser.if(function(token) {
       return token.value === '(';
     }),
-    parser.any,
     parser.if(function(token) {
       return token.value === ')';
     })
   ),
-  parser.defer(cpp, 'tokenExpression')
+  deferField(cpp, 'tokenExpression')
 );
 
 cpp.expressionParenthesisExtractor = parser.transform(
@@ -237,7 +208,7 @@ cpp.expressionParenthesisExtractor = parser.transform(
     )
   ),
   function(value) {
-    return Stream(value);
+    return parser.Stream(value);
   }
 );
 
@@ -252,16 +223,13 @@ cpp.expressionOperatorExtractor = function(index) {
 
   var currExtractor = parser.transform(
     parser.labelledSequence(
-      ['lhs', parser.layer(
-        parser.transform(
+      ['lhs', parser.pipe(
+        parser.substream(
           parser.oneOrMore(
             parser.if(function(token) {
               return operatorSet.indexOf(token.value) === -1;
             })
-          ),
-          function(value) {
-            return Stream(value);
-          }
+          )
         ),
         cpp.expressionOperatorExtractor(index + 1)
       )],
@@ -277,7 +245,7 @@ cpp.expressionOperatorExtractor = function(index) {
       )]
     ),
     function(value) {
-      if (!value.operatorAndRhs.success) {
+      if (!value.operatorAndRhs.set) {
         return value.lhs;
       }
 
@@ -295,39 +263,29 @@ cpp.expressionOperatorExtractor = function(index) {
   return currExtractor;
 };
 
-cpp.tokenExpression = parser.layer(
+cpp.tokenExpression = parser.pipe(
   cpp.expressionParenthesisExtractor,
   cpp.expressionOperatorExtractor(0)
 );
 
-cpp.expression = parser.layer(
+cpp.expression = parser.pipe(
   cpp.tokenize,
   cpp.tokenExpression
 );
 
-cpp.expressionStatement = parser.layer(
-  parser.until(parser.char(';')),
+cpp.expressionStatement = parser.pipe(
+  parser.many(parser.andNot(parser.any, parser.single(';'))),
   cpp.expression
 );
 
-cpp.variableDeclaration = parser.transform(
-  parser.labelledSequence(
-    ['type', cpp.typename],
-    ['w1', parser.whitespace],
-    ['name', cpp.identifier],
-    ['w2', parser.whitespace],
-    ['equals', parser.char('=')],
-    ['w3', parser.optionalWhitespace],
-    ['expression', cpp.expressionStatement]
-  ),
-  function(value) {
-    delete value.w1;
-    delete value.w2;
-    delete value.equals;
-    delete value.w3;
-
-    return value;
-  }
+cpp.variableDeclaration = parser.labelledSequence(
+  ['type', cpp.typename],
+  parser.whitespace,
+  ['name', cpp.identifier],
+  parser.whitespace,
+  parser.single('='),
+  parser.many(parser.whitespace),
+  ['expression', cpp.expressionStatement]
 );
 
 cpp.returnStatement = parser.transform(
@@ -341,78 +299,50 @@ cpp.returnStatement = parser.transform(
   }
 );
 
-cpp.codeBlock = parser.layer(
+cpp.codeBlock = parser.pipe(
   cpp.block,
   parser.wrapOptionalWhitespace(
     parser.many(
       parser.wrapOptionalWhitespace(
-        parser.defer(cpp, 'statement')
+        deferField(cpp, 'statement')
       )
     )
   )
 );
 
-cpp.condition = parser.layer(
+cpp.condition = parser.pipe(
   parser.block(
-    parser.char('('),
-    parser.any,
-    parser.char(')')
+    parser.single('('),
+    parser.single(')')
   ),
   cpp.expression
 );
 
-cpp.if = parser.transform(
-  parser.labelledSequence(
-    ['ifKeyword', parser.string('if')],
-    ['w1', parser.optionalWhitespace],
-    ['condition', cpp.condition],
-    ['w2', parser.optionalWhitespace],
-    ['body', cpp.codeBlock],
-    ['continuation', parser.optional(
-      parser.transform(
-        parser.labelledSequence(
-          ['w1', parser.optionalWhitespace],
-          ['elseKeyword', parser.string('else')],
-          ['w2', parser.optionalWhitespace],
-          ['elseBody', parser.labelledOr(
-            ['codeBlock', cpp.codeBlock],
-            ['if', parser.defer(cpp, 'if')]
-          )]
-        ),
-        function(value) {
-          delete value.w1;
-          delete value.elseKeyword;
-          delete value.w2;
-
-          return value;
-        }
-      )
-    )]
-  ),
-  function(value) {
-    delete value.ifKeyword;
-    delete value.w1;
-    delete value.w2;
-
-    return value;
-  }
+cpp.if = parser.labelledSequence(
+  parser.string('if'),
+  parser.many(parser.whitespace),
+  ['condition', cpp.condition],
+  parser.many(parser.whitespace),
+  ['body', cpp.codeBlock],
+  ['continuation', parser.optional(
+    parser.labelledSequence(
+      parser.many(parser.whitespace),
+      parser.string('else'),
+      parser.many(parser.whitespace),
+      ['elseBody', parser.labelledOr(
+        ['codeBlock', cpp.codeBlock],
+        ['if', deferField(cpp, 'if')]
+      )]
+    )
+  )]
 );
 
-cpp.while = parser.transform(
-  parser.labelledSequence(
-    ['whileKeyword', parser.string('while')],
-    ['w1', parser.optionalWhitespace],
-    ['condition', cpp.condition],
-    ['w2', parser.optionalWhitespace],
-    ['body', cpp.codeBlock]
-  ),
-  function(value) {
-    delete value.whileKeyword;
-    delete value.w1;
-    delete value.w2;
-
-    return value;
-  }
+cpp.while = parser.labelledSequence(
+  parser.string('while'),
+  parser.many(parser.whitespace),
+  ['condition', cpp.condition],
+  parser.many(parser.whitespace),
+  ['body', cpp.codeBlock]
 );
 
 cpp.statement = parser.labelledOr(
@@ -426,17 +356,10 @@ cpp.statement = parser.labelledOr(
   )]
 );
 
-cpp.function = parser.transform(
-  parser.labelledSequence(
-    ['heading', cpp.functionHeading],
-    ['w1', parser.optionalWhitespace],
-    ['body', cpp.codeBlock]
-  ),
-  function(value) {
-    delete value.w1;
-
-    return value;
-  }
+cpp.function = parser.labelledSequence(
+  ['heading', cpp.functionHeading],
+  parser.many(parser.whitespace),
+  ['body', cpp.codeBlock]
 );
 
 cpp.topLevelElement = parser.labelledOr(
@@ -449,11 +372,11 @@ cpp.program = parser.transform(
   parser.sequence(
     parser.many(
       parser.sequence(
-        parser.optionalWhitespace,
+        parser.many(parser.whitespace),
         cpp.topLevelElement
       )
     ),
-    parser.optionalWhitespace
+    parser.many(parser.whitespace)
   ),
   function(value) {
     return value[0].map(function(pair) {
