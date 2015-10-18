@@ -6,9 +6,15 @@
 var assert = require('assert');
 
 // local modules
+var any = require('../../lib/consumers/any.js');
 var block = require('../../lib/consumers/block.js');
 var LineStream = require('../../lib/streams/lineStream.js');
+var many = require('../../lib/consumers/many.js');
 var single = require('../../lib/consumers/single.js');
+
+var getStreamContent = function(stream) {
+  return many(any).consume(stream).value;
+};
 
 describe('block', function() {
   it('accepts an empty block', function() {
@@ -20,7 +26,7 @@ describe('block', function() {
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
-    assert.deepEqual(parseResult.value, []);
+    assert.deepEqual(getStreamContent(parseResult.value), []);
   });
 
   it('accepts arbitrary internal data', function() {
@@ -32,7 +38,7 @@ describe('block', function() {
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
-    assert.deepEqual(parseResult.value, 'jkl; we20nv23 hello!'.split(''));
+    assert.deepEqual(getStreamContent(parseResult.value), 'jkl; we20nv23 hello!'.split(''));
   });
 
   it('accepts nested blocks', function() {
@@ -44,6 +50,6 @@ describe('block', function() {
 
     assert.equal(parseResult.accepted, true);
     assert.equal(parseResult.valid, true);
-    assert.deepEqual(parseResult.value, '{{{{}}{}{}}}'.split(''));
+    assert.deepEqual(getStreamContent(parseResult.value), '{{{{}}{}{}}}'.split(''));
   });
 });
