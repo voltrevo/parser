@@ -8,34 +8,35 @@ var assert = require('assert');
 // local modules
 var describeResult = require('../../lib/util/describeResult.js');
 
+var mockStream = {
+  describeMarkRange: function(markA, markB) { return [markA, markB].join('-'); }
+};
+
 var mockParseResult = function(accepted, valid) {
   return {
     name: 'foo',
     accepted: accepted,
     valid: valid,
     invalidations: [],
+    stream: mockStream,
     location: ['a', 'b']
   };
-};
-
-var mockStream = {
-  describeMarkRange: function(markA, markB) { return [markA, markB].join('-'); }
 };
 
 describe('describeResult', function() {
   it('produces appropriate heading when invalidations are empty', function() {
     assert.equal(
-      describeResult(mockParseResult(true, true), mockStream),
+      describeResult(mockParseResult(true, true)),
       'foo valid at a-b'
     );
 
     assert.equal(
-      describeResult(mockParseResult(true, false), mockStream),
+      describeResult(mockParseResult(true, false)),
       'foo invalid at a-b'
     );
 
     assert.equal(
-      describeResult(mockParseResult(false, false), mockStream),
+      describeResult(mockParseResult(false, false)),
       'foo rejected at a-b'
     );
   });
