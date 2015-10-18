@@ -5,7 +5,7 @@
 ## Install
 
 ```sh
-$ npm install --save parser
+$ npm install --save voltrevo-parser
 ```
 
 
@@ -37,7 +37,7 @@ MIT © [Andrew Morris](http://andrewmorris.io/)
 
 
 [npm-image]: https://badge.fury.io/js/parser.svg
-[npm-url]: https://npmjs.org/package/parser
+[npm-url]: https://npmjs.org/package/voltrevo-parser
 [travis-image]: https://travis-ci.org/voltrevo/parser.svg?branch=master
 [travis-url]: https://travis-ci.org/voltrevo/parser
 [daviddm-image]: https://david-dm.org/voltrevo/parser.svg?theme=shields.io
