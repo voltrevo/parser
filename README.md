@@ -36,7 +36,7 @@ console.log(demo(stream));
 MIT © [Andrew Morris](http://andrewmorris.io/)
 
 
-[npm-image]: https://badge.fury.io/js/parser.svg
+[npm-image]: https://badge.fury.io/js/voltrevo-parser.svg
 [npm-url]: https://npmjs.org/package/voltrevo-parser
 [travis-image]: https://travis-ci.org/voltrevo/parser.svg?branch=master
 [travis-url]: https://travis-ci.org/voltrevo/parser
