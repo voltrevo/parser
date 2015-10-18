@@ -226,7 +226,6 @@ describe('cpp', function() {
     ]
   });
 
-  /* TODO: uncomment
   testTemplate('expression', {
     valid: [
       ['0', {
@@ -546,8 +545,7 @@ describe('cpp', function() {
         },
         body: [],
         continuation: {
-          success: false,
-          value: [[]]
+          set: false
         }
       }],
       ['if (1 + 1) {{}}'],
@@ -559,7 +557,7 @@ describe('cpp', function() {
         },
         body: [],
         continuation: {
-          success: true,
+          set: true,
           value: {
             elseBody: {
               label: 'codeBlock',
@@ -577,7 +575,7 @@ describe('cpp', function() {
         },
         body: [],
         continuation: {
-          success: true,
+          set: true,
           value: {
             elseBody: {
               label: 'if',
@@ -588,7 +586,7 @@ describe('cpp', function() {
                 },
                 body: [],
                 continuation: {
-                  success: true,
+                  set: true,
                   value: {
                     elseBody: {
                       label: 'if',
@@ -599,7 +597,7 @@ describe('cpp', function() {
                         },
                         body: [],
                         continuation: {
-                          success: true,
+                          set: true,
                           value: {
                             elseBody: {
                               label: 'codeBlock',
@@ -753,5 +751,4 @@ describe('cpp', function() {
       [' ']
     ]
   });
-  */
 });
