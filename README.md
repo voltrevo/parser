@@ -14,7 +14,7 @@ $ npm install --save voltrevo-parser
 ```js
 'use strict';
 
-var parser = require('parser');
+var parser = require('voltrevo-parser');
 
 var foo = parser.string('foo');
 var bar = parser.string('bar');
@@ -26,9 +26,16 @@ var demo = parser.sequence(
   baz
 );
 
-var stream = parser.stream('foobarbarbarbaz');
+var stream = parser.Stream('foobarbarbarbaz');
 
-console.log(demo(stream));
+console.log(demo.consume(stream)); /*
+{ name: 'sequence(oneOrMore("foo"), many("bar"), "baz")',
+  value: [ [ 'foo' ], [ 'bar', 'bar', 'bar' ], 'baz' ],
+  accepted: true,
+  valid: true,
+  invalidations: [],
+  location: [ [Function], [Function] ] }
+*/
 ```
 
 ## License
