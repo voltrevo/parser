@@ -4,7 +4,7 @@
 
 var fs = require('fs');
 var Stream = require('../../../lib/streams/stream.js');
-var cpp = require('../cppParse.js');
+var cpp = require('../cppParse');
 
 console.log(JSON.stringify(
   cpp(Stream(
