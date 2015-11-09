@@ -24,10 +24,10 @@ compiler.initCompilation = function() {
       failed: false
     },
     warn: function(msg) {
-      compilation.state.messages.push({ type: 'warn', msg: msg });
+      compilation.state.messages.push({type: 'warn', msg: msg});
     },
     error: function(msg) {
-      compilation.state.messages.push({ type: 'error', msg: msg });
+      compilation.state.messages.push({type: 'error', msg: msg});
       compilation.state.failed = true;
     }
   };

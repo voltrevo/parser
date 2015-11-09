@@ -127,10 +127,10 @@ describe('jsonValue', function() {
     var testCases = [
       ['{}', {}],
       ['{ }', {}],
-      ['{"a": true}', { a: true }],
-      ['{"a": {}}', { a: {} }], [
+      ['{"a": true}', {a: true}],
+      ['{"a": {}}', {a: {}}], [
         '{"string": "", "number": 1.1, "bool": true, "null": null, "array": [], "object": {}}',
-        { string: '', number: 1.1, bool: true, null: null, array: [], object: {} }
+        {string: '', number: 1.1, bool: true, null: null, array: [], object: {}}
       ]
     ].map(function(pair) {
       return {

@@ -38,7 +38,7 @@ describe('labelledSequence', function() {
 
     assert.deepEqual(
       parseResult.value,
-      { first: 'a', last: 'c' }
+      {first: 'a', last: 'c'}
     );
   });
 });

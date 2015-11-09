@@ -58,11 +58,11 @@ describe('constrainAcceptance', function() {
         return sequenceElement[0];
       }),
       [
-        { label: 'testConsumer', value: ['a'] },
-        { label: 'testConsumer', value: ['a', 'a'] },
-        { label: 'testConsumer rejected', value: ['a', 'a', 'a'] },
-        { label: 'testConsumer', value: ['a', 'a', 'a', 'a'] },
-        { label: 'testConsumer', value: ['a', 'a', 'a', 'a', 'a'] }
+        {label: 'testConsumer', value: ['a']},
+        {label: 'testConsumer', value: ['a', 'a']},
+        {label: 'testConsumer rejected', value: ['a', 'a', 'a']},
+        {label: 'testConsumer', value: ['a', 'a', 'a', 'a']},
+        {label: 'testConsumer', value: ['a', 'a', 'a', 'a', 'a']}
       ]
     );
   });

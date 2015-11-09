@@ -139,24 +139,24 @@ describe('cpp', function() {
     valid: [
       ['', []],
       ['int x', [
-        { type: 'int', name: 'x' }
+        {type: 'int', name: 'x'}
       ]],
       ['int x, int y', [
-        { type: 'int', name: 'x' },
-        { type: 'int', name: 'y' }
+        {type: 'int', name: 'x'},
+        {type: 'int', name: 'y'}
       ]],
       ['int x , int y', [
-        { type: 'int', name: 'x' },
-        { type: 'int', name: 'y' }
+        {type: 'int', name: 'x'},
+        {type: 'int', name: 'y'}
       ]],
       ['int x ,int y', [
-        { type: 'int', name: 'x' },
-        { type: 'int', name: 'y' }
+        {type: 'int', name: 'x'},
+        {type: 'int', name: 'y'}
       ]],
       ['int x, int y, int z', [
-        { type: 'int', name: 'x' },
-        { type: 'int', name: 'y' },
-        { type: 'int', name: 'z' }
+        {type: 'int', name: 'x'},
+        {type: 'int', name: 'y'},
+        {type: 'int', name: 'z'}
       ]]
     ],
     invalid: [

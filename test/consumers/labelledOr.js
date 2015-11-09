@@ -29,9 +29,9 @@ describe('labelledOr', function() {
     assert.equal(parseResult.valid, true);
 
     assert.deepEqual(parseResult.value, [
-      { label: 'digit', value: 0 },
-      { label: 'alpha', value: 'x' },
-      { label: 'other', value: '$' }
+      {label: 'digit', value: 0},
+      {label: 'alpha', value: 'x'},
+      {label: 'other', value: '$'}
     ]);
   });
 });
